@@ -14,22 +14,24 @@ def login_required(f):
     return wrap
 
 def connection():
-    conn=sqlite.connect('users.sqlite')
+    conn=sqlite3.connect('users.sqlite')
     cur=conn.cursor()
     cur.execute('CREATE TABLE IF NOT EXISTS posts (s_no NUMBER, type TEXT, tr_id NUMBER, user_id NUMBER, content TEXT, selling_p NUMBER, used_for TEXT, add_info TEXT)')
+    conn.commit()
     return (cur,conn)
 
-@app.route('/board/<num>')
-@login_required
+@app.route('/board/<num>/')
+#@login_required
 def board(num):
     try:
         cur,conn=connection()
-        start=(num-1)*10
+        start=(int(num)-1)*10
         end=start+10
-        cur.execute('SELECT * FROM posts WHERE s_n>? AND s_no<=?',(start,end))
+        cur.execute('SELECT * FROM posts WHERE s_no>? AND s_no<=?',(start,end))
         data=cur.fetchall()
         return render_template('board.html',data=data)
-
+    except Exception as e:
+        return str(e)
 
 @app.route('/sell/')
 @login_required
@@ -78,3 +80,8 @@ def request():
         return redirect(url_for('board'))
     except Exception as e:
         return str(e)
+
+if __name__=="__main__":
+    app.secret_key = 'super secret key'
+    app.config['SESSION_TYPE'] = 'filesystem'
+    app.run(debug=True)

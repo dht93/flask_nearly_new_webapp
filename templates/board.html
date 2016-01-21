@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Board</title>
+  <link rel="stylesheet" href="{{url_for('static',filename="css/bootstrap.css")}}" type="text/css">
+</head>
+<body>
+  <div class="page-header" align="center">
+  <h1>Board <small>Check out posts</small></h1>
+</div>
+<div class="container" align="center">
+  {%for el in data:%}
+<div class="card card-block" style="width: 18rem;">
+  <h3 class="card-title">
+  {%if el[1]=='S'%}
+  SELLING: {{el[4]}}
+</h3>
+  <p class="card-text">Selling Price: {{el[5]}}/-</p>
+  <p class="card-text">Used For: {{el[6]}}</p>
+  <p class="card-text">{{el[7]}}</p>
+  <a href="#" class="btn btn-primary">Link</a>
+  {%else%}
+  REQUESTING: {{el[4]}}
+</h3>
+{%if not el[7]=='NULL:'%}
+  <p class="card-text">{{el[7]}}</p>
+  {%endif%}
+  <a href="#" class="btn btn-primary">Link</a>
+  {%endif%}
+
+
+</div>
+<hr>
+<br>
+{%endfor%}
+</div>
+</body>
+</html>
