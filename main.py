@@ -20,6 +20,10 @@ def connection():
     conn.commit()
     return (cur,conn)
 
+@app.route('/post/<tr_id>/')
+def post(tr_id):
+    return str(tr_id)
+
 @app.route('/board/<num>/')
 #@login_required
 def board(num):
@@ -81,30 +85,6 @@ def request():
     except Exception as e:
         return str(e)
 
-@app.route('/register/')
-def register_page():
-    try:
-        cur,conn=connection()
-        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id NUMBER, user_name TEXT, name TEXT, email TEXT, password TEXT, settings TEXT)')
-        conn.commit()
-
-        user_name=request.form['user_name']
-        cur.execute('SELECT COUNT (*) form users WHERE')
-        count=cur.fetchone()[0]
-        if count==1:
-            error="This username has already been taken. Please choose another."
-            return render_template ('register.html',error=error)
-        else:
-            name=request.form['name']
-            email=request.form['email']
-            password=request.form['password']
-            cur.execute('SELECT COUNT (*) FROM users')
-            count=cur.fetchone()[0]
-            cur.execute('INSERT INTO users VALUES (?,?,?,?,?)',(count+1,user_name, name, email, password,'NULL'))
-            conn.commit()
-            return render_template ('welcome.html')
-    except Exception as e:
-        return str(e)
 
 
 if __name__=="__main__":

@@ -8,31 +8,31 @@
 <body>
   <div class="page-header" align="center">
   <h1>Board <small>Check out posts</small></h1>
+  <a href="{{url_for('register_page')}}">Yo</a>
 </div>
 <div class="container" align="center">
   {%for el in data:%}
-<div class="card card-block" style="width: 18rem;">
-  <h3 class="card-title">
-  {%if el[1]=='S'%}
-  SELLING: {{el[4]}}
-</h3>
-  <p class="card-text">Selling Price: {{el[5]}}/-</p>
-  <p class="card-text">Used For: {{el[6]}}</p>
-  <p class="card-text">{{el[7]}}</p>
-  <a href="#" class="btn btn-primary">Link</a>
-  {%else%}
-  REQUESTING: {{el[4]}}
-</h3>
-{%if not el[7]=='NULL:'%}
-  <p class="card-text">{{el[7]}}</p>
-  {%endif%}
-  <a href="#" class="btn btn-primary">Link</a>
-  {%endif%}
-
+<div class="panel panel-default" style="width:40%;">
+  <div class="panel-heading">
+    <h3 class="panel-title">{%if el[1]=='S'%}SELL: {{el[4]}}{%else:%}REQUEST: {{el[4]}}{%endif%}</h3>
+  </div>
+  <div class="panel-body">
+    {%if el[1]=='S':%}
+    <span>
+    <p>Selling price: {{el[5]}}</p>
+    <p>Used for: {{el[6]}}</p>
+    <p>{{el[7]}}</p></span>
+    {%else:%}
+    {%if not el[7]=='NULL':%}
+    <p>{{el[7]}}</p>
+    {%endif%}
+    {%endif%}
+    <div class="btn-group" role="group" aria-label="...">
+  <button type="button" class="btn btn-default"><a href="{{url_for('post',tr_id=el[2])}}">Check out</a></button>
+</div>
+  </div>
 
 </div>
-<hr>
-<br>
 {%endfor%}
 </div>
 </body>
