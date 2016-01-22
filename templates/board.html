@@ -17,17 +17,18 @@
   </div>
   <div class="panel-body">
     {%if el[1]=='S':%}
-    <span>
     <p>Selling price: {{el[5]}}</p>
     <p>Used for: {{el[6]}}</p>
-    <p>{{el[7]}}</p></span>
+    {%if not el[7]=='':%}
+    <p>Seller says: {{el[7]}}</p>
+    {%endif%}
     {%else:%}
-    {%if not el[7]=='NULL':%}
-    <p>{{el[7]}}</p>
+    {%if not el[7]=='':%}
+    <p>Seeker says: {{el[7]}}</p>
     {%endif%}
     {%endif%}
     <div class="btn-group" role="group" aria-label="...">
-  <button type="button" class="btn btn-default"><a href="{{url_for('post',tr_id=el[2])}}">Check out</a></button>
+  <button type="button" class="btn btn-default"><a href="{{url_for('post',tr_id=el[2])}}">Details</a></button>
 </div>
   </div>
 
