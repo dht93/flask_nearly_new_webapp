@@ -1,6 +1,7 @@
-from flask import Flask, render_template,request, url_for, redirect, session
+from flask import Flask, render_template,request, url_for, redirect, session, flash
 import sqlite3
 from functools import wraps
+import gc
 
 app=Flask(__name__)
 
@@ -10,39 +11,43 @@ def login_required(f):
         if 'logged_in' in session:
             return f(*args,**kwargs)
         else:
+            #flash("You need to login first")
             return redirect (url_for('login_page'))
     return wrap
 
 def connection():
     conn=sqlite3.connect('users.sqlite')
     cur=conn.cursor()
-    cur.execute('CREATE TABLE IF NOT EXISTS posts (s_no NUMBER, type TEXT, tr_id NUMBER, user_id NUMBER, content TEXT, selling_p NUMBER, used_for TEXT, add_info TEXT)')
-    conn.commit()
     return (cur,conn)
 
-@app.route('/post/<tr_id>/')
-def post(tr_id):
-    return str(tr_id)
-
-@app.route('/board/<num>/')
+@app.route('/board/<int:num>/')
 #@login_required
 def board(num):
     try:
         cur,conn=connection()
-        start=(int(num)-1)*10
-        end=start+10
-        cur.execute('SELECT * FROM posts WHERE s_no>? AND s_no<=?',(start,end))
+        cur.execute('SELECT COUNT (*) FROM posts')
+        count=cur.fetchone()[0]
+        if count>10:
+            if num==1:
+                start=count-10
+            else:
+                start=count-(int(num)-1)*10
+            end=start+10
+        else:
+            start=0
+            end=10
+        cur.execute('SELECT * FROM posts WHERE s_no>? AND s_no<=? ORDER BY s_no DESC',(start,end))
         data=cur.fetchall()
         return render_template('board.html',data=data)
     except Exception as e:
         return str(e)
 
-@app.route('/sell/')
-@login_required
+@app.route('/sell/',methods=['GET','POST'])
+#@login_required
 def sell():
-    try:
-        cur,conn=connection()
+    if request.method =='POST':
 
+        cur,conn=connection()
         content=request.form['content']
         selling_p=request.form['selling_p']
         used_for=request.form['used_for']
@@ -51,41 +56,22 @@ def sell():
         cur.execute('SELECT COUNT (*) FROM posts')
 
         count=cur.fetchone()[0]
-        if not count==0:
+        if not count==0:        #stuff present in posts
             cur.execute('SELECT tr_id FROM posts WHERE s_no=?',(count,))
             next_tr_id=cur.fetchone()[0]+1
         else:
             count=1
             next_tr_id=5555
-        cur.execute('INSERT INTO posts VALUES (?,?,?,?,?,?,?,?)',(count+1,'S',next_tr_id,session['user_id'],content,selling_p,used_for,add_info))
+        cur.execute('INSERT INTO posts VALUES (?,?,?,?,?,?,?,?)',(count+1,'S',next_tr_id,5,content,selling_p,used_for,add_info))
         conn.commit()
-        return redirect (url_for('board'))
-    except Exceptipn as e:
-        return str(e)
+        return "Yo"
+        #return redirect (url_for('board',num=1))
+    else:
+        return render_template('sell.html')
 
-@app.route('/request/')
-@login_required
-def request():
-    try:
-        cur,conn=connection()
-        content=request.form['content']
-        exp_price=request.form['exp_price']
-        add_info=request.form['add_info']
-        cur.execute('SELECT COUNT (*) FROM posts')
-        count=cur.fetchone()[0]
-        if not count==0:
-            cur.execute('SELECT tr_id FROM posts WHERE s_no=?',(count,))
-            next_tr_id=cur.fetchone()[0]+1
-        else:
-            count=1
-            next_tr_id=5555
-        cur.execute('INSERT INTO posts VALUES (?,?,?,?,?,?,?,?)',(count+1,'R',next_tr_id,session['user_id'],content, exp_price,'NULL',add_info))
-        conn.commit()
-        return redirect(url_for('board'))
-    except Exception as e:
-        return str(e)
-
-
+@app.route('/post/<int:tr_id>/')
+def post(tr_id):
+    return str(tr_id)
 
 if __name__=="__main__":
     app.secret_key = 'super secret key'
