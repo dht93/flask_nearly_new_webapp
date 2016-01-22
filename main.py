@@ -85,7 +85,7 @@ def request():
 def register_page():
     try:
         cur,conn=connection()
-        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id NUMBER, user_name TEXT, name TEXT, password TEXT, settings TEXT)')
+        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id NUMBER, user_name TEXT, name TEXT, email TEXT, password TEXT, settings TEXT)')
         conn.commit()
 
         user_name=request.form['user_name']
@@ -96,10 +96,11 @@ def register_page():
             return render_template ('register.html',error=error)
         else:
             name=request.form['name']
+            email=request.form['email']
             password=request.form['password']
             cur.execute('SELECT COUNT (*) FROM users')
             count=cur.fetchone()[0]
-            cur.execute('INSERT INTO users VALUES (?,?,?,?)',(count+1,user_name, name, password,'NULL'))
+            cur.execute('INSERT INTO users VALUES (?,?,?,?,?)',(count+1,user_name, name, email, password,'NULL'))
             conn.commit()
             return render_template ('welcome.html')
     except Exception as e:
