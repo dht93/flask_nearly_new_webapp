@@ -24,7 +24,7 @@
 {%endif%}
 <div class="container" align="center">
   {%for el in data:%}
-<div class="panel panel-default" style="width:40%;">
+<div class="panel panel-info" style="width:40%;">
   <div class="panel-heading">
     <h3 class="panel-title">{%if el[1]=='S'%}<span style="float:left; "class="label label-primary">Sell</span> &nbsp;&nbsp;#{{el[0]}}&nbsp;{{el[4]}}{%else:%}<span style="float:left;" class="label label-warning">Seek</span>&nbsp;&nbsp;#{{el[0]}}&nbsp;{{el[4]}}{%endif%}</h3>
   </div>

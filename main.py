@@ -39,13 +39,14 @@ def register_page():
             name=request.form['name']
             email=request.form['email']
             password=request.form['password']
-            cur.execute('INSERT INTO users VALUES (?,?,?,?,?,?)',(next_user_id,user_name,name,email,password,'NULL'))
+            settings='00'
+            cur.execute('INSERT INTO users VALUES (?,?,?,?,?,?)',(next_user_id,user_name,name,email,password,settings))
             conn.commit()
             session['logged_in']=True
             session['user_id']=next_user_id
             session['user_name']=user_name
             session['name']=name
-            session['settings']='NULL'
+            session['settings']=settings
             return redirect(url_for('board',num=1))
         else:
             error="This user name has already been taken. Please choose another."
@@ -151,6 +152,33 @@ def seek():
     else:
         return render_template('seek.html')
 
+
+@app.route('/settings/',methods=['GET','POST'])
+@login_required
+def settings():
+    if request.method=='POST':
+        num_s=request.form['num_s']
+        email_s=request.form['email_s']
+        settings=''
+        if num_s=='y':
+            settings+='1'
+        else:
+            settings+='0'
+        if email_s=='y':
+            settings+='1'
+        else:
+            settings+='0'
+        cur,conn=connection()
+        cur.execute('UPDATE users SET settings=? WHERE user_id=?',(settings,session['user_id']))
+        conn.commit()
+        message="Settings saved."
+        return render_template('settings.html',settings=settings,message=message)
+    else:
+        cur,conn=connection()
+        cur.execute('SELECT settings FROM users WHERE user_id=?',(session['user_id'],))
+        settings=cur.fetchone()[0]
+        message=None
+        return render_template('settings.html',settings=settings,message=None)
 
 
 @app.route('/post/<int:tr_id>/')

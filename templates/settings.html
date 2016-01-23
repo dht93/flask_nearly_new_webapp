@@ -1,0 +1,38 @@
+{%extends 'header.html'%}
+
+{%block settings_active%}class="active"
+{%endblock%}
+
+{%block body%}
+<div class="page-header" align="center">
+<h1>Settings &nbsp;<small>Update to your preferences</small></h1>
+</div>
+<div class="container" align="center" style="width:40%;">
+<form action="" class="form-inline" method="post">
+
+<div class="panel panel-default">
+<div class="panel-body">
+  Do you want your contact number to be visible in your posts by default?
+<br>
+
+<label><input type="radio" name="num_s" value="y" {%if settings[0]=='1':%}checked=""{%endif%}>Yes</input></label>&nbsp;&nbsp;&nbsp;
+<label><input type="radio" name="num_s" value="n" {%if settings[0]=='0':%}checked=""{%endif%}>No</input></label>
+</div>
+</div>
+
+<div class="panel panel-default">
+<div class="panel-body">
+  Do you want your email to be visible in your posts by default?
+<br>
+<label><input type="radio" name="email_s" value="y" {%if settings[1]=='1':%}checked=""{%endif%}>Yes</input></label>&nbsp;&nbsp;&nbsp;
+<label><input type="radio" name="email_s" value="n" {%if settings[1]=='0':%}checked=""{%endif%}>No</input></label>
+</div>
+</div>
+{%if not message==None:%}
+<div class="alert alert-success" role="alert">{{message}}</div>
+{%endif%}
+  <input class="btn btn-default" type="submit" value="Save">
+</form>
+</div>
+
+{%endblock%}
