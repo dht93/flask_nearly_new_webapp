@@ -2,18 +2,14 @@
 
 {%block body%}
 {%if not session.logged_in:%}
-<div class="jumbotron" align="center" style="background-image: url({{url_for('static',filename='images/book.jpg')}});background-size:cover;height:550px;color:#f5245f;">
-  <div container>
-  <h1>Nearly-New</h1>
-  {%if not session.logged_in%}
-  <p style="color:black;">Register or login to continue.</p>
-
-  <div  class= "container-fluid" >
+  <div class="jumbotron text-center" style="background-image: url({{url_for('static',filename='images/book.jpg')}});background-size:cover;height:550px;color:#f5245f;">
+    <h1>Nearly-New</h1>
+    <p style="color:black;">Register or login to continue.</p>
+    <div class="container" align="center" style="width:40%;">
     <div class="row">
       <div class="col-md-6" align="right"><p><a class="btn btn-primary btn-lg" href="{{url_for('register_page')}}" role="button" >Register</a></p></div>
 <div class="col-md-6" align ="left">  <p><a class="btn btn-primary btn-lg" href="{{url_for('login_page')}}" role="button">Login</a></p></div>
-</div></div>
-{%endif%}
+</div>
 </div>
 </div>
 {%else:%}
