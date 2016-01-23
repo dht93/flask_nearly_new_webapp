@@ -69,6 +69,24 @@ def sell():
     else:
         return render_template('sell.html')
 
+@app.route('/seek/',methods=['GET','POST'])
+def seek():
+    if request.method=='POST':
+        cur,conn=connection()
+        content=request.form['content']
+        add_info=request.form['add_info']
+        cur.execute('SELECT COUNT (*) FROM posts')
+        count=cur.fetchone()[0]
+        cur.execute('SELECT tr_id FROM posts WHERE s_no=?',(count,))
+        next_tr_id=cur.fetchone()[0]+1
+        cur.execute('INSERT INTO posts VALUES (?,?,?,?,?,?,?,?)',(count+1,'R',next_tr_id,5,content,'NULL','NULL',add_info))
+        conn.commit()
+        return str(next_tr_id)
+    else:
+        return render_template('seek.html')
+
+
+
 @app.route('/post/<int:tr_id>/')
 def post(tr_id):
     return str(tr_id)
