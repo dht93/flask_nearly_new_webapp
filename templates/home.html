@@ -6,6 +6,7 @@
 {%endblock%}
 
 {%block body%}
+{%if not session.logged_in:%}
 <div class="jumbotron" align="center">
   <div container>
     <br>
@@ -23,6 +24,11 @@
 {%endif%}
 </div>
 </div>
+{%else:%}
+<div class="container-fluid" align="center">
+  <h1>Nearly-New</h1>
+    <p>This is nearly-new.</p>
+{%endif%}
 
 
 

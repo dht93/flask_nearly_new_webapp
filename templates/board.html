@@ -1,19 +1,32 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Board</title>
-  <link rel="stylesheet" href="{{url_for('static',filename="css/bootstrap.css")}}" type="text/css">
-</head>
-<body>
+{%extends 'header.html'%}
+
+{%block board_active%}class="active"
+{%endblock%}
+
+{%block body%}
   <div class="page-header" align="center">
   <h1>Board <small>Check out posts</small></h1>
 </div>
+
+{%if posts_on_page>2:%}
+<div class="container" align="center">
+<nav>
+  <ul class="pagination">
+
+    <li {%if current==1:%}class="disabled"><a{%else:%}><a href="{{url_for('board',num=current-1)}}"{%endif%} aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+    {%for p in range(1,no_of_pages+1)%}
+    <li {%if p==current:%}class="active"><a>{{p}}{%else:%}><a href="{{url_for('board',num=p)}}">{{p}}{%endif%} <span class="sr-only"></span></a></li>
+    {%endfor%}
+    <li {%if current==no_of_pages:%}class="disabled"><a{%else:%}><a href="{{url_for('board',num=current+1)}}"{%endif%} aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+  </ul>
+</nav>
+</div>
+{%endif%}
 <div class="container" align="center">
   {%for el in data:%}
 <div class="panel panel-default" style="width:40%;">
   <div class="panel-heading">
-    <h3 class="panel-title">{%if el[1]=='S'%}<span style="float:left; "class="label label-primary">Sell</span> &nbsp;&nbsp;{{el[4]}}{%else:%}<span style="float:left;" class="label label-warning">Seek</span>&nbsp;&nbsp;{{el[4]}}{%endif%}</h3>
+    <h3 class="panel-title">{%if el[1]=='S'%}<span style="float:left; "class="label label-primary">Sell</span> &nbsp;&nbsp;#{{el[0]}}&nbsp;{{el[4]}}{%else:%}<span style="float:left;" class="label label-warning">Seek</span>&nbsp;&nbsp;#{{el[0]}}&nbsp;{{el[4]}}{%endif%}</h3>
   </div>
   <div class="panel-body">
     {%if el[1]=='S':%}
@@ -37,5 +50,16 @@
 </div>
 {%endfor%}
 </div>
-</body>
-</html>
+<div class="container" align="center">
+<nav>
+  <ul class="pagination">
+
+    <li {%if current==1:%}class="disabled"><a{%else:%}><a href="{{url_for('board',num=current-1)}}"{%endif%} aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+    {%for p in range(1,no_of_pages+1)%}
+    <li {%if p==current:%}class="active"><a>{{p}}{%else:%}><a href="{{url_for('board',num=p)}}">{{p}}{%endif%} <span class="sr-only"></span></a></li>
+    {%endfor%}
+    <li {%if current==no_of_pages:%}class="disabled"><a{%else:%}><a href="{{url_for('board',num=current+1)}}"{%endif%} aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+  </ul>
+</nav>
+</div>
+{%endblock%}

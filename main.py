@@ -84,29 +84,31 @@ def login_page():
 
 
 @app.route('/board/<int:num>/')
-#@login_required
+@login_required
 def board(num):
     try:
         cur,conn=connection()
         cur.execute('SELECT COUNT (*) FROM posts')
         count=cur.fetchone()[0]
+        no_of_pages=(count/10)+1
+        current=num
         if count>10:
             if num==1:
                 start=count-10
             else:
-                start=count-(int(num)-1)*10
+                start=count-(int(num))*10
             end=start+10
         else:
             start=0
             end=10
         cur.execute('SELECT * FROM posts WHERE s_no>? AND s_no<=? ORDER BY s_no DESC',(start,end))
         data=cur.fetchall()
-        return render_template('board.html',data=data)
+        return render_template('board.html',data=data,no_of_pages=no_of_pages, current=current, posts_on_page=len(data))
     except Exception as e:
         return str(e)
 
 @app.route('/sell/',methods=['GET','POST'])
-#@login_required
+@login_required
 def sell():
     if request.method =='POST':
 
@@ -125,14 +127,15 @@ def sell():
         else:
             count=1
             next_tr_id=5555
-        cur.execute('INSERT INTO posts VALUES (?,?,?,?,?,?,?,?)',(count+1,'S',next_tr_id,5,content,selling_p,used_for,add_info))
+        cur.execute('INSERT INTO posts VALUES (?,?,?,?,?,?,?,?)',(count+1,'S',next_tr_id,session['user_id'],content,selling_p,used_for,add_info))
         conn.commit()
-        return "Yo"
+        return redirect(url_for('board',num=1))
         #return redirect (url_for('board',num=1))
     else:
         return render_template('sell.html')
 
 @app.route('/seek/',methods=['GET','POST'])
+@login_required
 def seek():
     if request.method=='POST':
         cur,conn=connection()
@@ -142,9 +145,9 @@ def seek():
         count=cur.fetchone()[0]
         cur.execute('SELECT tr_id FROM posts WHERE s_no=?',(count,))
         next_tr_id=cur.fetchone()[0]+1
-        cur.execute('INSERT INTO posts VALUES (?,?,?,?,?,?,?,?)',(count+1,'R',next_tr_id,5,content,'NULL','NULL',add_info))
+        cur.execute('INSERT INTO posts VALUES (?,?,?,?,?,?,?,?)',(count+1,'R',next_tr_id,session['user_id'],content,'NULL','NULL',add_info))
         conn.commit()
-        return str(next_tr_id)
+        return redirect(url_for('board',num=1))
     else:
         return render_template('seek.html')
 
@@ -153,6 +156,13 @@ def seek():
 @app.route('/post/<int:tr_id>/')
 def post(tr_id):
     return str(tr_id)
+
+@app.route('/logout/')
+@login_required
+def logout():
+    session.clear()
+    #flash('You are now logged out')
+    return redirect(url_for('index'))
 
 if __name__=="__main__":
     app.secret_key = 'super secret key'

@@ -12,17 +12,17 @@
   <nav class="navbar navbar-default">
     <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand" href="#">Home</a>
+        <a class="navbar-brand" href="{{url_for('index')}}">Home</a>
       </div>
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
-          <li class="active"><a href="#">Board <span class="sr-only">(current)</span></a></li>
-          <li><a href="#">Sell</a></li>
-          <li><a href="#">Seek</a></li>
+          <li {%block board_active%}{%endblock%}><a href="{{url_for('board',num=1)}}">Board <span class="sr-only">(current)</span></a></li>
+          <li {%block sell_active%}{%endblock%}><a href="{{url_for('sell')}}">Sell</a></li>
+          <li {%block seek_active%}{%endblock%}><a href="{{url_for('seek')}}">Seek</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="#">About</a></li>
-          <li><a href="#">Logout</a></li>
+          <li {%block about_active%}{%endblock%}><a href="#">About</a></li>
+          <li><a href="{{url_for('logout')}}">Logout</a></li>
         </ul>
       </div>
     </div>
