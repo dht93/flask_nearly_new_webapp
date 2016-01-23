@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="{{url_for('static',filename="css/bootstrap.css")}}" type="text/css">
 </head>
 <body>
-  <div class="container" align="center" style="min-height:100%">
+  <div class="container-fluid" align="center" style="min-height:100%;">
   	<div class="container">
   		<br>
   		<h4>Enter details:</h4>
@@ -15,7 +15,7 @@
   			<input required type="text" class="form-control" placeholder = "You're selling what?" name="content" value="{{request.form.content}}"><br>
         <input required type="text" class="form-control" placeholder = "You're expecting to sell at?" name="selling_p" value="{{request.form.selling_p}}"><br>
         <input required type="text" class="form-control" placeholder = "Used for?" name="used_for" value="{{request.form.used_for}}"><br>
-  			<input type="text" class="form-control" placeholder = "Any additional info?" name="add_info" value="{{request.form.add_info}}" ><br>
+  			<input type="text" class="form-control" placeholder = "Any additional info?" name="add_info" value="{{request.form.add_info}}" ><br><br>
         <input class="btn btn-default" type="submit" value="Post ad">
   		</form>
       {%if error%}

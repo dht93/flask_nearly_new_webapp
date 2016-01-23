@@ -27,9 +27,11 @@
     <p>Seeker says: {{el[7]}}</p>
     {%endif%}
     {%endif%}
-    <div class="btn-group" role="group" aria-label="...">
-  <button type="button" class="btn btn-default"><a href="{{url_for('post',tr_id=el[2])}}">Details</a></button>
+    <a href="{{url_for('post',tr_id=el[2])}}" class="btn btn-info btn-sm" role="button">Details</a>
+<!--    <div class="btn-group" role="group" aria-label="...">
+  <button type="button" class="btn btn-info"><a href="{{url_for('post',tr_id=el[2])}}">Details</a></button>
 </div>
+-->
   </div>
 
 </div>

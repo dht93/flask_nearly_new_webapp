@@ -1,0 +1,10 @@
+.jumbotron{
+  height:550px;
+  background: url('../images/book.jpg');
+  background-size: cover;
+  color:#f5245f;
+}
+
+#txt{
+  color:black;
+}

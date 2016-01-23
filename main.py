@@ -20,6 +20,69 @@ def connection():
     cur=conn.cursor()
     return (cur,conn)
 
+@app.route('/')
+def index():
+    return render_template('home.html')
+
+@app.route('/register/',methods=['GET','POST'])
+def register_page():
+    if request.method=='POST':
+        cur,conn=connection()
+        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id NUMBER, user_name TEXT, name TEXT, email TEXT, password TEXT, settings TEXT)')
+        conn.commit()
+        user_name=request.form['user_name']
+        cur.execute('SELECT COUNT (*) FROM users WHERE user_name=?',(user_name,))
+        count=cur.fetchone()[0]
+        if count==0:
+            cur.execute('SELECT COUNT (*) FROM users')
+            next_user_id=cur.fetchone()[0]+1
+            name=request.form['name']
+            email=request.form['email']
+            password=request.form['password']
+            cur.execute('INSERT INTO users VALUES (?,?,?,?,?,?)',(next_user_id,user_name,name,email,password,'NULL'))
+            conn.commit()
+            session['logged_in']=True
+            session['user_id']=next_user_id
+            session['user_name']=user_name
+            session['name']=name
+            session['settings']='NULL'
+            return redirect(url_for('board',num=1))
+        else:
+            error="This user name has already been taken. Please choose another."
+            return render_template('register.html',error=error)
+    else:
+        return render_template('register.html')
+
+@app.route('/login/',methods=['GET','POST'])
+def login_page():
+    if request.method=='POST':
+        cur,conn=connection()
+        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id NUMBER, user_name TEXT, name TEXT, email TEXT, password TEXT, settings TEXT)')
+        conn.commit()
+        user_name=request.form['user_name']
+        cur.execute('SELECT COUNT (*) FROM users WHERE user_name=?',(user_name,))
+        count=cur.fetchone()[0]
+        if count==0:
+            error="Invalid credentials. Please try again."
+            return render_template('login.html',error=error)
+        else:
+            password=request.form['password']
+            cur.execute('SELECT * FROM users WHERE user_name=?',(user_name,))
+            data=cur.fetchall()[0]
+            if password==data[4]:
+                session['logged_in']=True
+                session['user_name']=user_name
+                session['user_id']=data[0]
+                session['name']=data[2]
+                session['settings']=data[5]
+                return redirect(url_for('board',num=1))
+            else:
+                error="Invalid credentials. Please try again."
+                return render_template('login.html',error=error)
+    else:
+        return render_template('login.html')
+
+
 @app.route('/board/<int:num>/')
 #@login_required
 def board(num):
