@@ -1,8 +1,7 @@
 {%extends 'header.html'%}
 
 {%block body%}
-<div class="container-fluid" align="center" style="min-height:100%">
-	<div class="container-fluid">
+<div class="container-fluid" align="center" style="background-image: url({{url_for('static',filename='images/book.jpg')}});background-size:cover;height:550px;">
 		<br>
 		<h4>Login:</h4>
 		<br>
@@ -18,7 +17,7 @@
       {{error}}
     </div>
 {%endif%}
-</div>
+
 	</div>
 
 {%endblock%}
