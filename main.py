@@ -28,7 +28,7 @@ def index():
 def register_page():
     if request.method=='POST':
         cur,conn=connection()
-        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id NUMBER, user_name TEXT, name TEXT, email TEXT, password TEXT, settings TEXT)')
+        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id NUMBER, user_name TEXT, name TEXT, contact TEXT, email TEXT, password TEXT, settings TEXT)')
         conn.commit()
         user_name=request.form['user_name']
         cur.execute('SELECT COUNT (*) FROM users WHERE user_name=?',(user_name,))
@@ -40,13 +40,15 @@ def register_page():
             email=request.form['email']
             password=request.form['password']
             settings='00'
-            cur.execute('INSERT INTO users VALUES (?,?,?,?,?,?)',(next_user_id,user_name,name,email,password,settings))
+            cur.execute('INSERT INTO users VALUES (?,?,?,?,?,?,?)',(next_user_id,user_name,name,'NULL',email,password,settings))
             conn.commit()
             session['logged_in']=True
             session['user_id']=next_user_id
             session['user_name']=user_name
             session['name']=name
             session['settings']=settings
+            session['email']=data[4]
+            session['contact']='NULL'
             return redirect(url_for('board',num=1))
         else:
             error="This user name has already been taken. Please choose another."
@@ -58,7 +60,7 @@ def register_page():
 def login_page():
     if request.method=='POST':
         cur,conn=connection()
-        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id NUMBER, user_name TEXT, name TEXT, email TEXT, password TEXT, settings TEXT)')
+        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id NUMBER, user_name TEXT, name TEXT, contact TEXT,email TEXT, password TEXT, settings TEXT)')
         conn.commit()
         user_name=request.form['user_name']
         cur.execute('SELECT COUNT (*) FROM users WHERE user_name=?',(user_name,))
@@ -70,12 +72,14 @@ def login_page():
             password=request.form['password']
             cur.execute('SELECT * FROM users WHERE user_name=?',(user_name,))
             data=cur.fetchall()[0]
-            if password==data[4]:
+            if password==data[5]:
                 session['logged_in']=True
                 session['user_name']=user_name
                 session['user_id']=data[0]
                 session['name']=data[2]
-                session['settings']=data[5]
+                session['settings']=data[6]
+                session['email']=data[4]
+                session['contact']=data[3]
                 return redirect(url_for('board',num=1))
             else:
                 error="Invalid credentials. Please try again."
@@ -89,6 +93,8 @@ def login_page():
 def board(num):
     try:
         cur,conn=connection()
+        cur.execute('CREATE TABLE IF NOT EXISTS posts (s_no NUMBER, type TEXT, tr_id NUMBER,user_id TEXT,content TEXT,selling_p TEXT,used_for TEXT, add_info TEXT)')
+        conn.commit()
         cur.execute('SELECT COUNT (*) FROM posts')
         count=cur.fetchone()[0]
         if count<=10:
@@ -164,19 +170,73 @@ def seek():
 @login_required
 def settings():
     if request.method=='POST':
+        cur,conn=connection()
+        email=request.form['email']
+        contact=request.form['contact']
         num_s=request.form['num_s']
         email_s=request.form['email_s']
         settings=''
         if num_s=='y':
-            settings+='1'
+            if session['contact']=='NULL':
+                if len(contact)==0:
+                    error='You want your contact number to be displayed on your posts by default. You need to provide a contact number for that.'
+                    cur.execute('SELECT settings FROM users WHERE user_id=?',(session['user_id'],))
+                    settings=cur.fetchone()[0]
+                    return render_template('settings.html',error=error,settings=settings, message=None)
+                else:
+                    update=1
+                    to_save=contact
+                    settings+='1'
+            else:
+                if len(contact)==0:
+                    update=0
+                    settings+='1'
+                else:
+                    update=1
+                    to_save=contact
+                    settings+='1'
         else:
-            settings+='0'
+            if session['contact']=='NULL':
+                if len(contact)==0:
+                    update=0
+                    settings+='0'
+                else:
+                    update=1
+                    settings+='0'
+            else:
+                if len(contact)==0:
+                    update=0
+                    settings+='0'
+                else:
+                    update=1
+                    settings+='0'
         if email_s=='y':
-            settings+='1'
+            if len(email)==0:
+                update1=0
+                settings+='1'
+            else:
+                update1=1
+                settings+='1'
         else:
-            settings+='0'
+            if len(email)==0:
+                update1=0
+                settings+='0'
+            else:
+                update1=1
+                settings+='0'
         cur,conn=connection()
-        cur.execute('UPDATE users SET settings=? WHERE user_id=?',(settings,session['user_id']))
+        if update==0 and update1==0:
+            cur.execute('UPDATE users SET settings=? WHERE user_id=?',(settings,session['user_id']))
+        elif update==0 and update1==1:
+            cur.execute('UPDATE users SET email=?, settings=? WHERE user_id=?',(email,settings,session['user_id']))
+            session['email']=email
+        elif update==1 and update1==0:
+            cur.execute('UPDATE users SET contact=?, settings=? WHERE user_id=?',(contact,settings,session['user_id']))
+            session['contact']=contact
+        else:
+            cur.execute('UPDATE users SET contact=?,email=?,settings=? WHERE user_id=?',(contact,email,settings,session['user_id']))
+            session['contact']=contact
+            session['email']=email
         conn.commit()
         message="Settings saved."
         return render_template('settings.html',settings=settings,message=message)

@@ -9,7 +9,12 @@
 </div>
 <div class="container" align="center" style="width:40%;">
 <form action="" class="form-inline" method="post">
-
+<p style="display:inline;">Update your email address:</p>
+<input type="text" class="form-control" placeholder = "Current: {{session['email']}}" name="email" value="{{request.form.email}}"></input><br>
+<br>
+<p style="display:inline;">Update your contact number:</p>
+<input type="text" class="form-control" placeholder = "Current: {%if session['contact']=='NULL'%}*zilch*{%else:%}{{session['contact']}}{%endif%}" name="contact" value="{{request.form.contact}}"></input><br>
+<br>
 <div class="panel panel-default">
 <div class="panel-body">
   Do you want your contact number to be visible in your posts by default?
@@ -28,6 +33,9 @@
 <label><input type="radio" name="email_s" value="n" {%if settings[1]=='0':%}checked=""{%endif%}>No</input></label>
 </div>
 </div>
+{%if error%}
+<div class="alert alert-danger" role="alert">{{error}}</div>
+{%endif%}
 {%if not message==None:%}
 <div class="alert alert-success" role="alert">{{message}}</div>
 {%endif%}
