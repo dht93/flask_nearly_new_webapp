@@ -1,19 +1,63 @@
 {%extends 'header.html'%}
 
+{%block head%}
+<script src="{{url_for('static',filename='js/jquery.min.js')}}"></script>
+<script src="{{url_for('static',filename='js/scroll.js')}}"></script>
+{%endblock%}
+
 {%block body%}
 {%if not session.logged_in:%}
-  <div class="jumbotron text-center" style="background-image: url({{url_for('static',filename='images/book.jpg')}});background-size:cover;height:500px;color:#f5245f;">
+  <div id='top' class="jumbotron text-center" style="background-image: url({{url_for('static',filename='images/cover_top.jpg')}});background-size:cover;height: 100vh;color:white;">
+    <br><br><br><br><div class="container">
     <h1>Nearly-New</h1>
-    <p style="color:black;">Register or login to continue.</p>
+    <p style="color:#000000;">Register or login to continue.</p>
     <div class="container" align="center" style="width:40%;">
       <a href="{{url_for('register_page')}}" class="btn btn-info btn-lg" role="button">Register</a>
       <a href="{{url_for('login_page')}}" class="btn btn-info btn-lg" role="button">Login</a>
+      <br><br><br><br><br>
+      <button type="button" class="btn btn-info btn-lg"><a style="color:white;" class="smoothScroll" href="#bottom">Learn more</a></button>
 </div>
 </div>
+</div>
+
+<div id ="bottom" class="jumbotron" align="center" style="background-image: url({{url_for('static',filename='images/cover.jpg')}});background-size:cover;height: 100vh;color:white;">
+<h1>This is nearly-new</h1>
+<br><div style="color:#000000;opacity:0.9;">
+<p>Meaning to sell your old text-book that's lying somewhere in your cupboard?</p>
+<p>Or seeking a second-hand book?</p>
+<p>Well, in either case, nearly-new is here to help.</p>
+<p>Post a sell/seek ad on nearly-new to let other users know.</p>
+<p>Make your contact information available when an interested user requests for it.</p>
+<p>Discuss the details and make a transaction!</p>
+</div>
+<br>
+<button type="button" class="btn btn-info btn-lg"><a style="color:white;" class="smoothScroll" href="#top">Go up</a></button>
+<br><br><br><br><br>
+<p>Built with &#10084; by <a target="_blank" href="https://github.com/dht93" style="text-decoration:none;color:white;"> Dhruv Thakur</a></p>
+</div>
+
+
+
+
 {%else:%}
-<div class="container-fluid" align="center">
-  <h1>Nearly-New</h1>
-    <p>This is nearly-new.</p>
+
+
+
+
+<div class="jumbotron" align="center" style="background-image: url({{url_for('static',filename='images/cover.jpg')}});background-size:cover;color:white;">
+<h1>This is nearly-new</h1>
+<br><div style="color:#000000;opacity:0.9;">
+<p>Meaning to sell your old text-book that's lying somewhere in your cupboard?</p>
+<p>Or seeking a second-hand book?</p>
+<p>Well, in either case, nearly-new is here to help.</p>
+<p>Post a sell/seek ad on nearly-new to let other users know.</p>
+<p>Make your contact information available when an interested user requests for it.</p>
+<p>Discuss the details and make a transaction!</p>
+</div>
+<br>
+<p><a class="btn btn-default" href="{{url_for('sell')}}" role="button">Start here</a></p>
+</div>
+
 {%endif%}
 
 
