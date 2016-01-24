@@ -130,12 +130,14 @@ def sell():
         if len(add_info)==0:
             add_info='NULL'
 
-        cur.execute('SELECT COUNT (*) FROM posts')
+        cur.execute('SELECT COUNT(*) FROM posts')
 
         count=cur.fetchone()[0]
         if not count==0:        #stuff present in posts
-            cur.execute('SELECT tr_id FROM posts WHERE s_no=?',(count,))
+            cur.execute('SELECT tr_id FROM posts ORDER BY s_no LIMIT 1')
             next_tr_id=cur.fetchone()[0]+1
+            cur.execute('SELECT s_no FROM posts ORDER BY s_no LIMIT 1')
+            count=cur.fetchone()[0]
         else:
             count=0
             next_tr_id=5555
@@ -158,8 +160,10 @@ def seek():
         cur.execute('SELECT COUNT (*) FROM posts')
         count=cur.fetchone()[0]
         if not count==0:        #stuff present in posts
-            cur.execute('SELECT tr_id FROM posts WHERE s_no=?',(count,))
+            cur.execute('SELECT tr_id FROM posts ORDER BY s_no LIMIT 1')
             next_tr_id=cur.fetchone()[0]+1
+            cur.execute('SELECT s_no FROM posts ORDER BY s_no LIMIT 1')
+            count=cur.fetchone()[0]
         else:
             count=0
             next_tr_id=5555

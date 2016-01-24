@@ -35,11 +35,11 @@
     {%if el[1]=='S':%}
     <p>Selling price: {{el[5]}}</p>
     <p>Used for: {{el[6]}}</p>
-    {%if not el[7]=='':%}
+    {%if not el[7]=='NULL':%}
     <p>Seller says: {{el[7]}}</p>
     {%endif%}
     {%else:%}
-    {%if not el[7]=='':%}
+    {%if not el[7]=='NULL':%}
     <p>Seeker says: {{el[7]}}</p>
     {%endif%}
     {%endif%}
