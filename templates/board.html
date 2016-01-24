@@ -28,19 +28,19 @@
   {%for el in data:%}
 <div class="panel panel-info" style="width:40%;">
   <div class="panel-heading">
-    <h3 class="panel-title">{%if el[1]=='S'%}<span style="float:right;" class="badge">#{{el[0]}}</span><span style="float:left; "class="label label-primary">Sell</span> {{el[7]}}{%else:%}<span style="float:right;" class="badge">#{{el[0]}}</span><span style="float:left;" class="label label-warning">Seek</span>{{el[7]}}{%endif%}</h3>
+    <h3 class="panel-title">{%if el[1]=='S'%}<span style="float:right;" class="badge">#{{el[0]}}</span><span style="float:left; "class="label label-primary">Sell</span> {{el[4]}}{%else:%}<span style="float:right;" class="badge">#{{el[0]}}</span><span style="float:left;" class="label label-warning">Seek</span>{{el[4]}}{%endif%}</h3>
   </div>
   <div class="panel-body">
-    <p>Posted by: {{el[4]}}</p>
+    <p>Posted by: {{el[3]}}</p>
     {%if el[1]=='S':%}
-    <p>Selling price: {{el[8]}}</p>
-    <p>Used for: {{el[9]}}</p>
-    {%if not el[10]=='':%}
-    <p>Seller says: {{el[10]}}</p>
+    <p>Selling price: {{el[5]}}</p>
+    <p>Used for: {{el[6]}}</p>
+    {%if not el[7]=='':%}
+    <p>Seller says: {{el[7]}}</p>
     {%endif%}
     {%else:%}
-    {%if not el[10]=='':%}
-    <p>Seeker says: {{el[10]}}</p>
+    {%if not el[7]=='':%}
+    <p>Seeker says: {{el[7]}}</p>
     {%endif%}
     {%endif%}
     <a href="{{url_for('post',tr_id=el[2])}}" class="btn btn-info btn-sm" role="button">Details</a>

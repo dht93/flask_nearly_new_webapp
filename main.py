@@ -111,7 +111,7 @@ def board(num):
         else:
             start=0
             end=10
-        cur.execute('SELECT s_no,type,tr_id,posts.user_id,users.name,users.settings,users.email,content,selling_p,used_for,add_info FROM posts,users WHERE posts.user_id=users.user_id AND s_no>? AND s_no<=? ORDER BY s_no DESC',(start,end))
+        cur.execute('SELECT s_no,type,tr_id,users.name,content,selling_p,used_for,add_info FROM posts,users WHERE posts.user_id=users.user_id AND s_no>? AND s_no<=? ORDER BY s_no DESC',(start,end))
         data=cur.fetchall()
         return render_template('board.html',data=data,no_of_pages=no_of_pages, current=current, posts_on_page=len(data))
     except Exception as e:
