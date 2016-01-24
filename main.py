@@ -91,7 +91,10 @@ def board(num):
         cur,conn=connection()
         cur.execute('SELECT COUNT (*) FROM posts')
         count=cur.fetchone()[0]
-        no_of_pages=(count/10)+1
+        if count<=10:
+            no_of_pages=1
+        else:
+            no_of_pages=(count/10)+1
         current=num
         if count>10:
             if num==1:
