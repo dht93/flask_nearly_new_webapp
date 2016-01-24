@@ -1,15 +1,16 @@
 {%extends 'header.html'%}
 
 {%block body%}
-<div class="jumbotron text-center" style="background-image: url({{url_for('static',filename='images/book.jpg')}});background-size:cover;height:500px;color:#f5245f;">
+<div id='top' class="jumbotron text-center" style="background-image: url({{url_for('static',filename='images/cover_top.jpg')}});background-size:cover;height: 100vh;color:white;">
+  <br><br><br><br><div class="container">
   <h1>Nearly-New</h1>
-  <p style="color:black;">Login:</p>
+  <p style="color:#000000;">Login</p>
   <div class="container" align="center" style="width:40%;">
-		<form action="" class="form-inline" method="post">
+    <form action="" class="form-inline" method="post">
       <input required type="text" class="form-control input-lg" placeholder = "username" name="user_name" value="{{request.form.user_name}}"><br>
-			<input required id="pass" type="password" class="form-control input-lg" placeholder = "password" name="password" value="{{request.form.password}}" ><br>
-      <br><input class="btn btn-lg" type="submit" value="Login">
-		</form>
+      <input required id="pass" type="password" class="form-control input-lg" placeholder = "password" name="password" value="{{request.form.password}}" ><br>
+      <br><input class="btn btn-lg btn-primary" type="submit" value="Login">
+    </form>
     {%if error%}
     <div class="alert alert-danger" role="alert">
       <!--<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>-->
@@ -17,8 +18,12 @@
       {{error}}
     </div>
 {%endif%}
-
-	</div>
+<br><br><br>
+<button type="button" class="btn btn-primary btn-lg"><a style="color:white;" href="{{url_for('index')}}">Go back</a></button>
+  </div>
 </div>
+</div>
+
+
 
 {%endblock%}
