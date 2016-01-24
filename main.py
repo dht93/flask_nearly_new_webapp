@@ -28,22 +28,22 @@ def index():
 def register_page():
     if request.method=='POST':
         cur,conn=connection()
-        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id NUMBER, user_name TEXT, name TEXT, contact TEXT, email TEXT, password TEXT, settings TEXT)')
+        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT, name TEXT, contact TEXT, email TEXT, password TEXT, settings TEXT)')
         conn.commit()
         user_name=request.form['user_name']
         cur.execute('SELECT COUNT (*) FROM users WHERE user_name=?',(user_name,))
         count=cur.fetchone()[0]
         if count==0:
-            cur.execute('SELECT COUNT (*) FROM users')
-            next_user_id=cur.fetchone()[0]+1
             name=request.form['name']
             email=request.form['email']
             password=request.form['password']
             settings='00'
-            cur.execute('INSERT INTO users VALUES (?,?,?,?,?,?,?)',(next_user_id,user_name,name,'NULL',email,password,settings))
+            cur.execute('INSERT INTO users (user_name, name, contact, email, password, settings) VALUES (?,?,?,?,?,?)',(user_name,name,'NULL',email,password,settings))
             conn.commit()
+            cur.execute('SELECT user_id FROM users WHERE user_name=?',(user_name,))
+            user_id=cur.fetchone()[0]
             session['logged_in']=True
-            session['user_id']=next_user_id
+            session['user_id']=user_id
             session['user_name']=user_name
             session['name']=name
             session['settings']=settings
@@ -60,7 +60,7 @@ def register_page():
 def login_page():
     if request.method=='POST':
         cur,conn=connection()
-        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id NUMBER, user_name TEXT, name TEXT, contact TEXT,email TEXT, password TEXT, settings TEXT)')
+        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT, name TEXT, contact TEXT, email TEXT, password TEXT, settings TEXT)')
         conn.commit()
         user_name=request.form['user_name']
         cur.execute('SELECT COUNT (*) FROM users WHERE user_name=?',(user_name,))
@@ -91,31 +91,28 @@ def login_page():
 @app.route('/board/<int:num>/')
 @login_required
 def board(num):
-    try:
-        cur,conn=connection()
-        cur.execute('CREATE TABLE IF NOT EXISTS posts (s_no NUMBER, type TEXT, tr_id NUMBER,user_id TEXT,content TEXT,selling_p TEXT,used_for TEXT, add_info TEXT)')
-        conn.commit()
-        cur.execute('SELECT COUNT (*) FROM posts')
-        count=cur.fetchone()[0]
-        if count<=10:
-            no_of_pages=1
+    cur,conn=connection()
+    cur.execute('CREATE TABLE IF NOT EXISTS posts (tr_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT,user_id TEXT,content TEXT,selling_p TEXT,used_for TEXT, add_info TEXT)')
+    conn.commit()
+    cur.execute('SELECT COUNT (*) FROM posts')
+    count=cur.fetchone()[0]
+    if count<=10:
+        no_of_pages=1
+    else:
+        no_of_pages=(count/10)+1
+    current=num
+    if count>10:
+        if num==1:
+            start=count-10
         else:
-            no_of_pages=(count/10)+1
-        current=num
-        if count>10:
-            if num==1:
-                start=count-10
-            else:
-                start=count-(int(num))*10
-            end=start+10
-        else:
-            start=0
-            end=10
-        cur.execute('SELECT s_no,type,tr_id,users.name,content,selling_p,used_for,add_info,users.user_id FROM posts,users WHERE posts.user_id=users.user_id AND s_no>? AND s_no<=? ORDER BY s_no DESC',(start,end))
-        data=cur.fetchall()
-        return render_template('board.html',data=data,no_of_pages=no_of_pages, current=current, posts_on_page=len(data))
-    except Exception as e:
-        return str(e)
+            start=count-num*10
+        end=start+10
+    else:
+        start=0
+        end=10
+    cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id FROM posts,users WHERE posts.user_id=users.user_id AND tr_id>? AND tr_id<=? ORDER BY tr_id DESC',(start,end))
+    data=cur.fetchall()
+    return render_template('board.html',data=data,no_of_pages=no_of_pages, current=current, posts_on_page=len(data))
 
 @app.route('/sell/',methods=['GET','POST'])
 @login_required
@@ -129,19 +126,7 @@ def sell():
         add_info=request.form['add_info']
         if len(add_info)==0:
             add_info='NULL'
-
-        cur.execute('SELECT COUNT(*) FROM posts')
-
-        count=cur.fetchone()[0]
-        if not count==0:        #stuff present in posts
-            cur.execute('SELECT tr_id FROM posts ORDER BY s_no DESC LIMIT 1')
-            next_tr_id=cur.fetchone()[0]+1
-            cur.execute('SELECT s_no FROM posts ORDER BY s_no DESC LIMIT 1')
-            count=cur.fetchone()[0]
-        else:
-            count=0
-            next_tr_id=5555
-        cur.execute('INSERT INTO posts VALUES (?,?,?,?,?,?,?,?)',(count+1,'S',next_tr_id,session['user_id'],content,selling_p,used_for,add_info))
+        cur.execute('INSERT INTO posts (type, user_id, content, selling_p, used_for, add_info) VALUES (?,?,?,?,?,?)',('S',session['user_id'],content,selling_p,used_for,add_info))
         conn.commit()
         return redirect(url_for('board',num=1))
         #return redirect (url_for('board',num=1))
@@ -157,17 +142,7 @@ def seek():
         add_info=request.form['add_info']
         if len(add_info)==0:
             add_info='NULL'
-        cur.execute('SELECT COUNT (*) FROM posts')
-        count=cur.fetchone()[0]
-        if not count==0:        #stuff present in posts
-            cur.execute('SELECT tr_id FROM posts ORDER BY s_no DESC LIMIT 1')
-            next_tr_id=cur.fetchone()[0]+1
-            cur.execute('SELECT s_no FROM posts ORDER BY s_no  DESC LIMIT 1')
-            count=cur.fetchone()[0]
-        else:
-            count=0
-            next_tr_id=5555
-        cur.execute('INSERT INTO posts VALUES (?,?,?,?,?,?,?,?)',(count+1,'R',next_tr_id,session['user_id'],content,'NULL','NULL',add_info))
+        cur.execute('INSERT INTO posts (type, user_id, content, selling_p, used_for, add_info) VALUES (?,?,?,?,?,?)',('R',session['user_id'],content,'NULL','NULL',add_info))
         conn.commit()
         return redirect(url_for('board',num=1))
     else:
@@ -261,7 +236,7 @@ def settings():
 def your_posts():
     try:
         cur,conn=connection()
-        cur.execute('SELECT * FROM posts WHERE user_id=? ORDER BY s_no DESC',(session['user_id'],))
+        cur.execute('SELECT * FROM posts WHERE user_id=? ORDER BY tr_id DESC',(session['user_id'],))
         data=cur.fetchall()
         return render_template('your_posts.html',data=data)
     except Exception as e:
@@ -270,7 +245,7 @@ def your_posts():
 @app.route('/post/<int:tr_id>/')
 def post(tr_id):
     cur,conn=connection()
-    cur.execute('SELECT s_no,type,tr_id,posts.user_id,users.name,users.contact,users.email,users.settings,content,selling_p,used_for,add_info FROM posts,users WHERE users.user_id=posts.user_id AND tr_id=?',(tr_id,))
+    cur.execute('SELECT tr_id, type, posts.user_id, users.name, users.contact, users.email, users.settings, content, selling_p, used_for, add_info FROM posts,users WHERE users.user_id=posts.user_id AND tr_id=?',(tr_id,))
     data=cur.fetchall()[0]
     cur.execute('CREATE TABLE IF NOT EXISTS requests_c (tr_id NUMBER, requestor NUMBER)')
     conn.commit()
@@ -301,7 +276,7 @@ def request_num(tr_id):
     cur.execute('INSERT INTO requests_c VALUES (?,?)',(tr_id,session['user_id']))
     conn.commit()
     message="Request sent"
-    cur.execute('SELECT s_no,type,tr_id,posts.user_id,users.name,users.contact,users.email,users.settings,content,selling_p,used_for,add_info FROM posts,users WHERE users.user_id=posts.user_id AND tr_id=?',(tr_id,))
+    cur.execute('SELECT tr_id, type, posts.user_id, users.name, users.contact, users.email, users.settings, content, selling_p, used_for, add_info FROM posts,users WHERE users.user_id=posts.user_id AND tr_id=?',(tr_id,))
     data=cur.fetchall()[0]
     cur.execute('SELECT COUNT (*) FROM requests_c WHERE tr_id=? AND requestor=?',(tr_id,session['user_id']))
     r_c=cur.fetchone()[0]
@@ -319,7 +294,7 @@ def request_email(tr_id):
     cur.execute('INSERT INTO requests_e VALUES (?,?)',(tr_id,session['user_id']))
     conn.commit()
     message="Request sent"
-    cur.execute('SELECT s_no,type,tr_id,posts.user_id,users.name,users.contact,users.email,users.settings,content,selling_p,used_for,add_info FROM posts,users WHERE users.user_id=posts.user_id AND tr_id=?',(tr_id,))
+    cur.execute('SELECT tr_id, type, posts.user_id, users.name, users.contact, users.email, users.settings, content, selling_p, used_for, add_info FROM posts,users WHERE users.user_id=posts.user_id AND tr_id=?',(tr_id,))
     data=cur.fetchall()[0]
     cur.execute('SELECT COUNT (*) FROM requests_c WHERE tr_id=? AND requestor=?',(tr_id,session['user_id']))
     r_c=cur.fetchone()[0]

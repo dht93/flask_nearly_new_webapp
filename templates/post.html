@@ -8,32 +8,32 @@
 <div class="panel panel-info">
   <div class="panel-heading">Item: {{data[8]}}</div>
   <div class="panel-body">
-    <p>{%if data[1]=='S'%}This is a sell request. {%else:%}This is a seek request. {%endif%}{%if data[7]=='00'%}The person who has posted this ad has chosen to keep his/her contact details hidden by default. You can request the contact details by clicking on the request buttons below.
-      {%elif data[7]=='01'%}The person who has posted this ad has chosen to keep his/her contact number hidden by default. You can request the contact number by clicking on the request button below. Or you could use the email address provided below.
-      {%elif data[7]=='10'%}The person who has posted this ad has chosen to keep his/her email address hidden by default. You can request the email address by clicking on the request button below. Or you could use the contact number provided below.
+    <p>{%if data[1]=='S'%}This is a sell request. {%else:%}This is a seek request. {%endif%}{%if data[6]=='00'%}The person who has posted this ad has chosen to keep his/her contact details hidden by default. You can request the contact details by clicking on the request buttons below.
+      {%elif data[6]=='01'%}The person who has posted this ad has chosen to keep his/her contact number hidden by default. You can request the contact number by clicking on the request button below. Or you could use the email address provided below.
+      {%elif data[6]=='10'%}The person who has posted this ad has chosen to keep his/her email address hidden by default. You can request the email address by clicking on the request button below. Or you could use the contact number provided below.
       {%else:%}You can find all of the contact information below.{%endif%}</p>
   </div>
 
   <ul class="list-group">
-    <li class="list-group-item">Posted By: {{data[4]}}</li>
+    <li class="list-group-item">Posted By: {{data[3]}}</li>
+    {%if not data[8]=='NULL'%}
+    <li class="list-group-item">Selling Price expected by seller: {{data[8]}}</li>{%endif%}
     {%if not data[9]=='NULL'%}
-    <li class="list-group-item">Selling Price expected by seller: {{data[9]}}</li>{%endif%}
+    <li class="list-group-item">Item used by seller for: {{data[9]}}</li>{%endif%}
     {%if not data[10]=='NULL'%}
-    <li class="list-group-item">Item used by seller for: {{data[10]}}</li>{%endif%}
-    {%if not data[11]=='NULL'%}
-    <li class="list-group-item">Additional information: {{data[11]}}</li>{%endif%}
-    {%if data[7][0]=='1':%}
-        <li class="list-group-item">Contact Number: {{data[5]}}</li>
+    <li class="list-group-item">Additional information: {{data[10]}}</li>{%endif%}
+    {%if data[6][0]=='1':%}
+        <li class="list-group-item">Contact Number: {{data[4]}}</li>
     {%else%}
         {%if request_data[0]==0:%}
-            <li class="list-group-item"><a href="{{url_for('request_num',tr_id=data[2])}}" class="btn btn-info" role="button">Request Contact Number</a></li>
+            <li class="list-group-item"><a href="{{url_for('request_num',tr_id=data[0])}}" class="btn btn-info" role="button">Request Contact Number</a></li>
         {%else:%}
             <li class="list-group-item"><button class="btn btn-warning" role="button">Contact Number requested</button></li>{%endif%}{%endif%}
-    {%if data[7][1]=='1':%}
-    <li class="list-group-item">Email: {{data[6]}}</li>
+    {%if data[6][1]=='1':%}
+    <li class="list-group-item">Email: {{data[5]}}</li>
     {%else%}
     {%if request_data[1]==0:%}
-    <li class="list-group-item"><a href="{{url_for('request_email',tr_id=data[2])}}" class="btn btn-info" role="button">Request Email Address</a></li>
+    <li class="list-group-item"><a href="{{url_for('request_email',tr_id=data[0])}}" class="btn btn-info" role="button">Request Email Address</a></li>
     {%else:%}
     <li class="list-group-item"><button class="btn btn-warning" role="button">Email Address requested</button></li>{%endif%}{%endif%}
   </ul>
