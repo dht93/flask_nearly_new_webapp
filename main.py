@@ -105,7 +105,7 @@ def board(num):
         else:
             start=0
             end=10
-        cur.execute('SELECT * FROM posts WHERE s_no>? AND s_no<=? ORDER BY s_no DESC',(start,end))
+        cur.execute('SELECT s_no,type,tr_id,posts.user_id,users.name,users.settings,users.email,content,selling_p,used_for,add_info FROM posts,users WHERE posts.user_id=users.user_id AND s_no>? AND s_no<=? ORDER BY s_no DESC',(start,end))
         data=cur.fetchall()
         return render_template('board.html',data=data,no_of_pages=no_of_pages, current=current, posts_on_page=len(data))
     except Exception as e:
@@ -129,7 +129,7 @@ def sell():
             cur.execute('SELECT tr_id FROM posts WHERE s_no=?',(count,))
             next_tr_id=cur.fetchone()[0]+1
         else:
-            count=1
+            count=0
             next_tr_id=5555
         cur.execute('INSERT INTO posts VALUES (?,?,?,?,?,?,?,?)',(count+1,'S',next_tr_id,session['user_id'],content,selling_p,used_for,add_info))
         conn.commit()
@@ -147,8 +147,12 @@ def seek():
         add_info=request.form['add_info']
         cur.execute('SELECT COUNT (*) FROM posts')
         count=cur.fetchone()[0]
-        cur.execute('SELECT tr_id FROM posts WHERE s_no=?',(count,))
-        next_tr_id=cur.fetchone()[0]+1
+        if not count==0:        #stuff present in posts
+            cur.execute('SELECT tr_id FROM posts WHERE s_no=?',(count,))
+            next_tr_id=cur.fetchone()[0]+1
+        else:
+            count=0
+            next_tr_id=5555
         cur.execute('INSERT INTO posts VALUES (?,?,?,?,?,?,?,?)',(count+1,'R',next_tr_id,session['user_id'],content,'NULL','NULL',add_info))
         conn.commit()
         return redirect(url_for('board',num=1))
@@ -184,9 +188,30 @@ def settings():
         return render_template('settings.html',settings=settings,message=None)
 
 
+@app.route('/your_posts/')
+@login_required
+def your_posts():
+    try:
+        cur,conn=connection()
+        cur.execute('SELECT * FROM posts WHERE user_id=? ORDER BY s_no DESC',(session['user_id'],))
+        data=cur.fetchall()
+        return render_template('your_posts.html',data=data)
+    except Exception as e:
+        return str(e)
+
 @app.route('/post/<int:tr_id>/')
 def post(tr_id):
     return str(tr_id)
+
+
+@app.route('/remove_post/<int:tr_id>/')
+@login_required
+def remove_post(tr_id):
+    cur,conn=connection()
+    cur.execute('DELETE FROM posts WHERE tr_id=?',(tr_id,))
+    conn.commit()
+    return redirect(url_for('your_posts'))
+
 
 @app.route('/logout/')
 @login_required

@@ -1,19 +1,22 @@
 {%extends 'header.html'%}
 
+{%block head%}
+<script src="{{url_for('static',filename='js/sell.js')}}"></script>
+{%endblock%}
 {%block sell_active%}class="active"{%endblock%}
 
 {%block body%}
-  <div class="container-fluid" align="center" style="min-height:100%;">
+  <div class="container-fluid"  style="min-height:100%;margin-left:40%;">
   	<div class="container">
   		<br>
-  		<h4>Enter details:</h4>
+  		<h4 style="margin-left:4%;">Enter details:</h4>
   		<br>
   		<form action="" class="form-inline" method="post">
-  			<input required type="text" class="form-control" placeholder = "You're selling what?" name="content" value="{{request.form.content}}"><br>
-        <input required type="text" class="form-control" placeholder = "You're expecting to sell at?" name="selling_p" value="{{request.form.selling_p}}"><br>
-        <input required type="text" class="form-control" placeholder = "Used for?" name="used_for" value="{{request.form.used_for}}"><br>
-  			<input type="text" class="form-control" placeholder = "Any additional info?" name="add_info" value="{{request.form.add_info}}" ><br><br>
-        <input class="btn btn-default" type="submit" value="Post ad">
+  			<input required type="text" class="form-control" placeholder = "You're selling what?" name="content" value="{{request.form.content}}" onclick="inp1in();"onblur="inp1out();"><p id="inp1" style="display:none;"></p><br>
+        <input required type="text" class="form-control" placeholder = "You're expecting to sell at?" name="selling_p" value="{{request.form.selling_p}}" onclick="inp2in();"onblur="inp2out();"><p id="inp2" style="display:none;"></p><br>
+        <input required type="text" class="form-control" placeholder = "Used for?" name="used_for" value="{{request.form.used_for}}" onclick="inp3in();"onblur="inp3out();"><p id="inp3" style="display:none;"></p><br>
+  			<input type="text" class="form-control" placeholder = "Any additional info?" name="add_info" value="{{request.form.add_info}}" onclick="inp4in();"onblur="inp4out();"><p id="inp4" style="display:none;"></p><br><br>
+        <input class="btn btn-default" type="submit" value="Post ad" style="margin-left:6%;">
   		</form>
       {%if error%}
   <p>{{error}}</p>
