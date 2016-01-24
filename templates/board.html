@@ -43,7 +43,11 @@
     <p>Seeker says: {{el[7]}}</p>
     {%endif%}
     {%endif%}
+
+    {%if not session['user_id']==el[8]:%}
     <a href="{{url_for('post',tr_id=el[2])}}" class="btn btn-info btn-sm" role="button">Details</a>
+    {%else:%}
+    <button class="btn btn-success" role="button">Your Post</button>{%endif%}
 <!--    <div class="btn-group" role="group" aria-label="...">
   <button type="button" class="btn btn-info"><a href="{{url_for('post',tr_id=el[2])}}">Details</a></button>
 </div>

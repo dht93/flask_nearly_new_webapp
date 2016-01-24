@@ -47,7 +47,7 @@ def register_page():
             session['user_name']=user_name
             session['name']=name
             session['settings']=settings
-            session['email']=data[4]
+            session['email']=email
             session['contact']='NULL'
             return redirect(url_for('board',num=1))
         else:
@@ -111,7 +111,7 @@ def board(num):
         else:
             start=0
             end=10
-        cur.execute('SELECT s_no,type,tr_id,users.name,content,selling_p,used_for,add_info FROM posts,users WHERE posts.user_id=users.user_id AND s_no>? AND s_no<=? ORDER BY s_no DESC',(start,end))
+        cur.execute('SELECT s_no,type,tr_id,users.name,content,selling_p,used_for,add_info,users.user_id FROM posts,users WHERE posts.user_id=users.user_id AND s_no>? AND s_no<=? ORDER BY s_no DESC',(start,end))
         data=cur.fetchall()
         return render_template('board.html',data=data,no_of_pages=no_of_pages, current=current, posts_on_page=len(data))
     except Exception as e:
@@ -127,6 +127,8 @@ def sell():
         selling_p=request.form['selling_p']
         used_for=request.form['used_for']
         add_info=request.form['add_info']
+        if len(add_info)==0:
+            add_info='NULL'
 
         cur.execute('SELECT COUNT (*) FROM posts')
 
@@ -151,6 +153,8 @@ def seek():
         cur,conn=connection()
         content=request.form['content']
         add_info=request.form['add_info']
+        if len(add_info)==0:
+            add_info='NULL'
         cur.execute('SELECT COUNT (*) FROM posts')
         count=cur.fetchone()[0]
         if not count==0:        #stuff present in posts
@@ -261,7 +265,19 @@ def your_posts():
 
 @app.route('/post/<int:tr_id>/')
 def post(tr_id):
-    return str(tr_id)
+    cur,conn=connection()
+    cur.execute('SELECT s_no,type,tr_id,posts.user_id,users.name,users.contact,users.email,users.settings,content,selling_p,used_for,add_info FROM posts,users WHERE users.user_id=posts.user_id AND tr_id=?',(tr_id,))
+    data=cur.fetchall()[0]
+    cur.execute('CREATE TABLE IF NOT EXISTS requests_c (tr_id NUMBER, requestor NUMBER)')
+    conn.commit()
+    cur.execute('CREATE TABLE IF NOT EXISTS requests_e (tr_id NUMBER, requestor NUMBER)')
+    conn.commit()
+    cur.execute('SELECT COUNT (*) FROM requests_c WHERE tr_id=? AND requestor=?',(tr_id,session['user_id']))
+    r_c=cur.fetchone()[0]
+    cur.execute('SELECT COUNT (*) FROM requests_e WHERE tr_id=? AND requestor=?',(tr_id,session['user_id']))
+    r_e=cur.fetchone()[0]
+    request_data=[r_c,r_e]
+    return render_template('post.html',data=data,request_data=request_data)
 
 
 @app.route('/remove_post/<int:tr_id>/')
@@ -272,6 +288,41 @@ def remove_post(tr_id):
     conn.commit()
     return redirect(url_for('your_posts'))
 
+@app.route('/request/num/<int:tr_id>/')
+@login_required
+def request_num(tr_id):
+    cur,conn=connection()
+    cur.execute('CREATE TABLE IF NOT EXISTS requests_c (tr_id NUMBER, requestor NUMBER)')
+    conn.commit()
+    cur.execute('INSERT INTO requests_c VALUES (?,?)',(tr_id,session['user_id']))
+    conn.commit()
+    message="Request sent"
+    cur.execute('SELECT s_no,type,tr_id,posts.user_id,users.name,users.contact,users.email,users.settings,content,selling_p,used_for,add_info FROM posts,users WHERE users.user_id=posts.user_id AND tr_id=?',(tr_id,))
+    data=cur.fetchall()[0]
+    cur.execute('SELECT COUNT (*) FROM requests_c WHERE tr_id=? AND requestor=?',(tr_id,session['user_id']))
+    r_c=cur.fetchone()[0]
+    cur.execute('SELECT COUNT (*) FROM requests_e WHERE tr_id=? AND requestor=?',(tr_id,session['user_id']))
+    r_e=cur.fetchone()[0]
+    request_data=[r_c,r_e]
+    return render_template('post.html',message=message, data=data, request_data=request_data)
+
+@app.route('/request/email/<int:tr_id>/')
+@login_required
+def request_email(tr_id):
+    cur,conn=connection()
+    cur.execute('CREATE TABLE IF NOT EXISTS requests_e (tr_id NUMBER, requestor NUMBER)')
+    conn.commit()
+    cur.execute('INSERT INTO requests_e VALUES (?,?)',(tr_id,session['user_id']))
+    conn.commit()
+    message="Request sent"
+    cur.execute('SELECT s_no,type,tr_id,posts.user_id,users.name,users.contact,users.email,users.settings,content,selling_p,used_for,add_info FROM posts,users WHERE users.user_id=posts.user_id AND tr_id=?',(tr_id,))
+    data=cur.fetchall()[0]
+    cur.execute('SELECT COUNT (*) FROM requests_c WHERE tr_id=? AND requestor=?',(tr_id,session['user_id']))
+    r_c=cur.fetchone()[0]
+    cur.execute('SELECT COUNT (*) FROM requests_e WHERE tr_id=? AND requestor=?',(tr_id,session['user_id']))
+    r_e=cur.fetchone()[0]
+    request_data=[r_c,r_e]
+    return render_template('post.html',message=message, data=data, request_data=request_data)
 
 @app.route('/logout/')
 @login_required
