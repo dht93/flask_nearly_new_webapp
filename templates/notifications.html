@@ -1,0 +1,127 @@
+{%extends 'header.html'%}
+
+{%block notifications_active%}class="active"
+{%endblock%}
+
+
+{%block head%}
+<script src="{{url_for('static',filename='js/jquery.min.js')}}"></script>
+<script src="{{url_for('static',filename='js/bootstrap.min.js')}}"></script>
+{%endblock%}
+
+{%block body%}
+
+<script>
+$(document).ready(function(){
+    $(".nav-tabs a").click(function(){
+        $(this).tab('show');
+    });
+});
+</script>
+
+<div class="container">
+  <h2 align="center">Notifications</h2>
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#your_requests">Your Requests {%if notifs|length>0%}<span class="badge">{{notifs|length}}</span>{%endif%}</a></li>
+    <li><a href="#home">New Requests {%if data_to_be|length>0%}<span class="badge">{{data_to_be|length}}</span>{%endif%}</a></li>
+    <li><a href="#menu1">Old Requests</a></li>
+    <li><a href="#menu2">Rejected Requests</a></li>
+  </ul>
+
+  <div class="tab-content">
+
+    <div id="your_requests" class="tab-pane fade in active">
+      {%if notifs|length==0%}
+      <br><br>
+      <p align="center">You have no new updates on your requests.</p>
+      {%else:%}
+      <h2 align="center">Updates on your requests:</h2>
+      {%for el in notifs:%}
+      <div class="container" align="center" style="width:60%">
+        {%if el[1]=='A'%}
+      <div class="panel panel-success">
+        <div class="panel-heading">Accepted</div>
+        <div class="panel-body">
+          <p>{{el[5]}} has accepted your request</p>
+          <a href="{{url_for('post',tr_id=el[4])}}" class="btn btn-info btn-sm" role="button">Check out post</a>
+          <a href="{{url_for('remove_notif',notif_id=el[0])}}" class="btn btn-info btn-sm" role="button">Remove notification</a>
+        </div>
+      </div>
+      {%else%}
+
+      <div class="panel panel-danger">
+        <div class="panel-heading">Rejected</div>
+        <div class="panel-body">
+          <p>{{el[5]}} has rejected your request</p>
+          <a href="{{url_for('post',tr_id=el[4])}}" class="btn btn-info btn-sm" role="button">Check out post</a>
+          <a href="{{url_for('remove_notif',notif_id=el[0])}}" class="btn btn-info btn-sm" role="button">Remove notification</a>
+        </div>
+      </div>
+      {%endif%}
+      </div>
+      {%endfor%}
+      {%endif%}
+    </div>
+
+
+      <div id="home" class="tab-pane fade">
+        {%if data_to_be|length==0%}
+        <br><br>
+        <p align="center">You have no new requests.</p>
+        {%else:%}
+        <h2 align="center">New requests</h2>
+        {%for el in data_to_be:%}
+        <div class="container" align="center" style="width:60%">
+        <div class="panel panel-info">
+          <div class="panel-heading">Item: {{el[2]}}</div>
+          <div class="panel-body">
+            <p>{{el[3]}} is requesting you to share your {%if el[1]=='C'%}contact number{%else%}email address{%endif%}</p>
+            <a href="{{url_for('accept_request',request_id=el[0],send_to=el[5],sender=el[6],tr_id=el[7])}}" class="btn btn-info" role="button">Accept request</a>
+            <a href="{{url_for('reject_request',request_id=el[0],send_to=el[5],sender=el[6],tr_id=el[7])}}" class="btn btn-info" role="button">Reject request</a>
+          </div>
+        </div>
+        </div>
+        {%endfor%}
+        {%endif%}
+      </div>
+
+
+      <div id="menu1" class="tab-pane fade">
+        {%if data_done|length>0:%}
+        <h2 align="center">Old requests</h2>
+          {%for el in data_done:%}
+          <div class="container" align="center" style="width:60%">
+          <div class="panel panel-warning">
+            <div class="panel-heading">Item: {{el[2]}}</div>
+            <div class="panel-body">
+              <p>You accepted {{el[3]}}'s request to share your {%if el[1]=='C'%}contact number{%else%}email address{%endif%}</p>
+            </div>
+          </div>
+          </div>
+        {%endfor%}
+        {%endif%}
+      </div>
+
+
+      <div id="menu2" class="tab-pane fade">
+        {%if data_rejected|length>0:%}
+        <h2 align="center">Rejected requests:</h2>
+          {%for el in data_done:%}
+          <div class="container" align="center" style="width:60%">
+          <div class="panel panel-danger">
+            <div class="panel-heading">Item: {{el[2]}}</div>
+            <div class="panel-body">
+              <p>You rejected {{el[3]}}'s request to share your {%if el[1]=='C'%}contact number{%else%}email address{%endif%}</p>
+            </div>
+          </div>
+          </div>
+        {%endfor%}
+        {%endif%}
+      </div>
+
+
+    </div>
+  </div>
+
+
+{%endblock%}

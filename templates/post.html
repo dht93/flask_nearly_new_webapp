@@ -6,7 +6,7 @@
 </div>
 <div class="container" align="center" style="width:60%">
 <div class="panel panel-info">
-  <div class="panel-heading">Item: {{data[8]}}</div>
+  <div class="panel-heading">Item: {{data[7]}}</div>
   <div class="panel-body">
     <p>{%if data[1]=='S'%}This is a sell request. {%else:%}This is a seek request. {%endif%}{%if data[6]=='00'%}The person who has posted this ad has chosen to keep his/her contact details hidden by default. You can request the contact details by clicking on the request buttons below.
       {%elif data[6]=='01'%}The person who has posted this ad has chosen to keep his/her contact number hidden by default. You can request the contact number by clicking on the request button below. Or you could use the email address provided below.
@@ -25,17 +25,25 @@
     {%if data[6][0]=='1':%}
         <li class="list-group-item">Contact Number: {{data[4]}}</li>
     {%else%}
-        {%if request_data[0]==0:%}
-            <li class="list-group-item"><a href="{{url_for('request_num',tr_id=data[0])}}" class="btn btn-info" role="button">Request Contact Number</a></li>
-        {%else:%}
-            <li class="list-group-item"><button class="btn btn-warning" role="button">Contact Number requested</button></li>{%endif%}{%endif%}
-    {%if data[6][1]=='1':%}
-    <li class="list-group-item">Email: {{data[5]}}</li>
-    {%else%}
-    {%if request_data[1]==0:%}
-    <li class="list-group-item"><a href="{{url_for('request_email',tr_id=data[0])}}" class="btn btn-info" role="button">Request Email Address</a></li>
-    {%else:%}
-    <li class="list-group-item"><button class="btn btn-warning" role="button">Email Address requested</button></li>{%endif%}{%endif%}
+        {%if request_data[0]=='NA':%}  <!--person has not yet requested-->
+            <li class="list-group-item"><a href="{{url_for('request_num',tr_id=data[0],send_to=data[2])}}" class="btn btn-info" role="button">Request Contact Number</a></li>
+        {%elif request_data[0]=='NY':%} <!--recipient has not yet responded-->
+            <li class="list-group-item"><button class="btn btn-warning" role="button">Contact Number requested</button></li>
+            {%elif request_data[0]=='Y'%} <!-- recipient accepted request -->
+            <li class="list-group-item">On your request :contact Number: {{data[4]}}</li>
+            {%else%}  <!-- recipient declined request -->
+            <li class="list-group-item">Your request got rejected</li> {%endif%}{%endif%}
+        {%if data[6][0]=='1':%}
+            <li class="list-group-item">Email Address: {{data[5]}}</li>
+        {%else%}
+            {%if request_data[1]=='NA':%}  <!--person has not yet requested-->
+                <li class="list-group-item"><a href="{{url_for('request_email',tr_id=data[0],send_to=data[2])}}" class="btn btn-info" role="button">Request Email Address</a></li>
+            {%elif request_data[1]=='NY':%} <!--recipient has not yet responded-->
+                <li class="list-group-item"><button class="btn btn-warning" role="button">Email requested</button></li>
+                {%elif request_data[1]=='Y'%} <!-- recipient accepted request -->
+                <li class="list-group-item">On your request :email: {{data[5]}}</li>
+                {%else%}  <!-- recipient declined request -->
+                <li class="list-group-item">Your request got rejected</li> {%endif%}{%endif%}
   </ul>
 </div>
 {%if message:%}
