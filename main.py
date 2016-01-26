@@ -1,6 +1,7 @@
 from flask import Flask, render_template,request, url_for, redirect, session, flash
 import sqlite3
 from functools import wraps
+from passlib.hash import sha256_crypt
 import gc
 
 app=Flask(__name__)
@@ -36,7 +37,7 @@ def register_page():
         if count==0:
             name=request.form['name']
             email=request.form['email']
-            password=request.form['password']
+            password=sha256_crypt.encrypt(str(request.form['password']))
             settings='00'
             cur.execute('INSERT INTO users (user_name, name, contact, email, password, settings) VALUES (?,?,?,?,?,?)',(user_name,name,'NULL',email,password,settings))
             conn.commit()
@@ -73,7 +74,7 @@ def login_page():
             password=request.form['password']
             cur.execute('SELECT * FROM users WHERE user_name=?',(user_name,))
             data=cur.fetchall()[0]
-            if password==data[5]:
+            if sha256_crypt.verify(password,data[5]):
                 session['logged_in']=True
                 session['user_name']=user_name
                 session['user_id']=data[0]
@@ -353,6 +354,15 @@ def logout():
 @login_required
 def about():
     return render_template('about.html')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('500.html')
+
 
 if __name__=="__main__":
     app.secret_key = 'super secret key'
