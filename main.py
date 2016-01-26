@@ -349,6 +349,11 @@ def logout():
     #flash('You are now logged out')
     return redirect(url_for('index'))
 
+@app.route('/about/')
+@login_required
+def about():
+    return render_template('about.html')
+
 if __name__=="__main__":
     app.secret_key = 'super secret key'
     app.config['SESSION_TYPE'] = 'filesystem'

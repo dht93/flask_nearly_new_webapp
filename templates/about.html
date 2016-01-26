@@ -1,0 +1,36 @@
+{%extends 'header.html'%}
+
+{%block about_active%}class="active"
+{%endblock%}
+
+{%block head%}
+<link rel="stylesheet" href="{{url_for('static',filename="css/social.css")}}" type="text/css">
+<link rel="stylesheet" href="{{url_for('static',filename="css/bootstrap.css")}}" type="text/css">
+{%endblock%}
+
+
+{%block body%}
+<div id='top' class="jumbotron text-center" style="background-image: url({{url_for('static',filename='images/cover_top.jpg')}});background-size:cover;height: 100vh;color:white;">
+  <div class="container">
+    <h1>Hey there</h1>
+    <p style="color:#000000;">A lil' something about me.</p>
+    <p style="color:#000000;">I'm Dhruv</p>
+  <p style="color:#000000;">I like building stuff, preferably by hitting keys on a keyboard.</p>
+  <p style="color:white;">You can find me here:</p>
+    <ul class="social-networks spin-icon">
+      <li><a target="_blank" href="https://github.com/dht93" class="icon-github">GitHub</a></li>
+  <li><a target="_blank" href="https://www.linkedin.com/in/dhruvthakur" class="icon-linkedin">LinkedIn</a></li>
+  <li><a target="_blank" href="https://twitter.com/dht93" class="icon-twitter">Twitter</a></li>
+  <li><a target="_blank" href="https://www.instagram.com/dhr.uv/" class="icon-instagram">Instagram</a></li>
+  <li><a target="_blank" href="https://www.facebook.com/metalplusclassicrock" class="icon-facebook">Facebook</a></li>
+</ul>
+
+</div>
+</div>
+
+
+
+
+
+
+{%endblock%}

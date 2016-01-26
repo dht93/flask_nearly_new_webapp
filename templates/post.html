@@ -39,7 +39,7 @@
             {%else:%}
             <li class="list-group-item">Contact number not provided by {{data[3]}}</li>
             {%endif%}
-        {%if data[6][0]=='1':%}
+        {%if data[6][1]=='1':%}
             <li class="list-group-item">Email Address: {{data[5]}}</li>
         {%else%}
             {%if request_data[1]=='NA':%}  <!--person has not yet requested-->
