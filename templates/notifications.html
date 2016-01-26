@@ -22,7 +22,7 @@ $(document).ready(function(){
 <div class="container">
   <h2 align="center">Notifications</h2>
   <ul class="nav nav-tabs">
-    <li class="active"><a href="#new_notifs">New notifications{%if (recipient_new_notifs|length + requestor_new_notifs|length)>0%}<span class="badge">{{(recipient_new_notifs|length + requestor_new_notifs|length)}}</span>{%endif%}</a></li>
+    <li class="active"><a href="#new_notifs">New notifications {%if (recipient_new_notifs|length + requestor_new_notifs|length)>0%}<span class="badge">{{(recipient_new_notifs|length + requestor_new_notifs|length)}}</span>{%endif%}</a></li>
     <li><a href="#old_notifs">Old notifications</a></li>
     </ul>
     <div class="tab-content">
