@@ -248,11 +248,11 @@ def post(tr_id):
     cur,conn=connection()
     cur.execute('SELECT tr_id, type, posts.user_id, users.name, users.contact, users.email, users.settings, content, selling_p, used_for, add_info FROM posts,users WHERE users.user_id=posts.user_id AND tr_id=?',(tr_id,))
     data=cur.fetchall()[0]
-    cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type TEXT, requestor NUMBER, recipient NUMBER, response TEXT)')
+    cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type_r TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT)')
     conn.commit()
-    cur.execute('SELECT COUNT(*), response FROM requests WHERE tr_id=? and requestor=? and type=?',(tr_id,session['user_id'],'C'))
+    cur.execute('SELECT COUNT(*), response FROM requests WHERE tr_id=? and requestor=? and type_r=?',(tr_id,session['user_id'],'C'))
     resp=cur.fetchone()
-    if resp[0]==0:
+    if resp[0]==0:          #not yet requested
         r_c='NA'
     else:
         if resp[1]=='NY':
@@ -261,7 +261,7 @@ def post(tr_id):
             r_c='Y'
         else:
             r_c='N'
-    cur.execute('SELECT COUNT(*), response FROM requests WHERE tr_id=? and requestor=? and type=?',(tr_id,session['user_id'],'E'))
+    cur.execute('SELECT COUNT(*), response FROM requests WHERE tr_id=? and requestor=? and type_r=?',(tr_id,session['user_id'],'E'))
     resp=cur.fetchone()
     if resp[0]==0:
         r_e='NA'
@@ -276,6 +276,16 @@ def post(tr_id):
     return render_template('post.html',data=data,request_data=request_data)
 
 
+@app.route('/request/<int:tr_id>/<type_r>/<int:recipient>/<recipient_name>/')
+@login_required
+def req(tr_id,type_r,recipient,recipient_name):
+    cur,conn=connection()
+    cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT)')
+    conn.commit()
+    cur.execute('INSERT INTO requests (tr_id,type_r,requestor, requestor_name,recipient,recipient_name,response,ack) VALUES (?,?,?,?,?,?,?,?)',(tr_id,type_r,session['user_id'],session['name'],recipient,recipient_name,'NY','NA'))
+    conn.commit()
+    return redirect(url_for('post',tr_id=tr_id))
+
 @app.route('/remove_post/<int:tr_id>/')
 @login_required
 def remove_post(tr_id):
@@ -284,82 +294,45 @@ def remove_post(tr_id):
     conn.commit()
     return redirect(url_for('your_posts'))
 
-@app.route('/request/num/<int:tr_id>/<int:send_to>/')
-@login_required
-def request_num(tr_id,send_to):
-    cur,conn=connection()
-    cur.execute('SELECT user_id FROM posts WHERE tr_id=?',(tr_id,))
-    recipient=int(cur.fetchone()[0])
-    cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type TEXT, requestor NUMBER, recipient NUMBER, response TEXT)')
-    conn.commit()
-    cur.execute('INSERT INTO requests (tr_id,type,requestor,recipient,response) VALUES (?,?,?,?,?)',(tr_id, 'C', session['user_id'], recipient,'NY'))
-    conn.commit()
-    return redirect(url_for('post',tr_id=tr_id))
-
-@app.route('/request/email/<int:tr_id>/<int:send_to>/')
-@login_required
-def request_email(tr_id,send_to):
-    cur,conn=connection()
-    cur.execute('SELECT user_id FROM posts WHERE tr_id=?',(tr_id,))
-    recipient=int(cur.fetchone()[0])
-    cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type TEXT, requestor NUMBER, recipient NUMBER, response TEXT)')
-    conn.commit()
-    cur.execute('INSERT INTO requests (tr_id,type,requestor,recipient,response) VALUES (?,?,?,?,?)',(tr_id, 'E', session['user_id'], recipient,'NY'))
-    conn.commit()
-    return redirect(url_for('post',tr_id=tr_id))
-
-
 @app.route('/notifications/')
 @login_required
 def notifications():
     cur,conn=connection()
-    cur.execute('SELECT request_id, requests.type, content, name, response, recipient,requestor,requests.tr_id FROM requests,posts,users WHERE posts.tr_id=requests.tr_id AND requests.requestor=users.user_id AND recipient=? AND response=? ORDER BY request_id DESC',(session['user_id'],'NY'))
-    data_to_be=cur.fetchall()
-    cur.execute('SELECT request_id, requests.type, content, name, response FROM requests,posts,users WHERE posts.tr_id=requests.tr_id AND requests.requestor=users.user_id AND recipient=? AND response=? ORDER BY request_id DESC',(session['user_id'],'Y'))
-    data_done=cur.fetchall()
-    cur.execute('SELECT request_id, requests.type, content, name, response FROM requests,posts,users WHERE posts.tr_id=requests.tr_id AND requests.requestor=users.user_id AND recipient=? AND response=? ORDER BY request_id DESC',(session['user_id'],'N'))
-    data_rejected=cur.fetchall()
-    cur.execute('CREATE TABLE IF NOT EXISTS notifs (notif_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT, sender NUMBER, send_to NUMBER, tr_id NUMBER,name TEXT, ack TEXT)')
-    conn.commit()
-    cur.execute('SELECT * FROM notifs WHERE sender=? AND ack =? ORDER BY notif_id DESC',(session['user_id'],'NY'))
-    new_notifs=cur.fetchall()
-    cur.execute('SELECT * FROM notifs WHERE sender=? AND ack =? ORDER BY notif_id DESC',(session['user_id'],'Y'))
-    old_notifs=cur.fetchall()
-    return render_template('notifications.html',data_to_be=data_to_be,data_done=data_done,data_rejected=data_rejected,new_notifs=new_notifs,old_notifs=old_notifs)
+    #recipient_new_notifs
+    cur.execute('SELECT * FROM requests WHERE recipient=? AND response=? ORDER BY request_id DESC',(session['user_id'],'NY'))
+    recipient_new_notifs=cur.fetchall()
+    #recipient_old_notifs
+    cur.execute('SELECT * FROM requests WHERE recipient=? AND response=? OR response=? ORDER BY request_id DESC',(session['user_id'],'Y','N'))
+    recipient_old_notifs=cur.fetchall()
+    #requestor_new_notifs
+    cur.execute('SELECT * FROM requests WHERE requestor=? AND ack=? ORDER BY request_id DESC',(session['user_id'],'NS'))
+    requestor_new_notifs=cur.fetchall()
+    #requestor_old_notifs
+    cur.execute('SELECT * FROM requests WHERE requestor=? AND ack=? ORDER BY request_id DESC',(session['user_id'],'S'))
+    requestor_old_notifs=cur.fetchall()
+    return render_template('notifications.html',recipient_new_notifs=recipient_new_notifs,recipient_old_notifs=recipient_old_notifs,requestor_new_notifs=requestor_new_notifs,requestor_old_notifs=requestor_old_notifs)
 
-@app.route('/request/accept/<int:request_id>/<int:send_to>/<int:sender>/<int:tr_id>/')
+@app.route('/request/accept/<int:request_id>/')
 @login_required
-def accept_request(request_id,send_to,sender,tr_id):
+def accept_request(request_id):
     cur,conn=connection()
-    cur.execute('UPDATE requests SET response=? WHERE request_id=?',('Y',request_id))
+    cur.execute('UPDATE requests SET response=?,ack=? WHERE request_id=?',('Y','NS',request_id))
     conn.commit()
-
-    cur.execute('CREATE TABLE IF NOT EXISTS notifs (notif_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT, sender NUMBER, send_to NUMBER, tr_id NUMBER, name TEXT, ack TEXT)')
-    conn.commit()
-    cur.execute('INSERT INTO notifs (type,sender,send_to,tr_id,name,ack) VALUES (?,?,?,?,?,?)',('A',sender,send_to,tr_id,session['name'],'N'))
-    conn.commit()
-
     return redirect(url_for('notifications'))
 
-@app.route('/request/reject/<int:request_id>/<int:send_to>/<int:sender>/<int:tr_id>/')
+@app.route('/request/reject/<int:request_id>/')
 @login_required
-def reject_request(request_id,send_to,sender,tr_id):
+def reject_request(request_id):
     cur,conn=connection()
-    cur.execute('UPDATE requests SET response=? WHERE request_id=?',('N',request_id))
+    cur.execute('UPDATE requests SET response=?,ack=? WHERE request_id=?',('N','NS',request_id))
     conn.commit()
-
-    cur.execute('CREATE TABLE IF NOT EXISTS notifs (notif_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT, sender NUMBER, send_to NUMBER, tr_id NUMBER,name TEXT, ack TEXT)')
-    conn.commit()
-    cur.execute('INSERT INTO notifs  (type,sender,send_to,tr_id,name,ack) VALUES (?,?,?,?,?,?)',('R',sender,send_to,tr_id,session['name'],'N'))
-    conn.commit()
-
     return redirect(url_for('notifications'))
 
-@app.route('/remove_notif/<int:notif_id>/')
+@app.route('/notif/ack/<int:request_id>/')
 @login_required
-def remove_notif(notif_id):
+def ack_notif(request_id):
     cur,conn=connection()
-    cur.execute('UPDATE notifs SET ack=? WHERE sender=? AND notif_id=?',('Y',session['user_id'],notif_id))
+    cur.execute('UPDATE requests SET ack=? WHERE request_id=?',('S',request_id))
     conn.commit()
     return redirect(url_for('notifications'))
 
