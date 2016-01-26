@@ -222,6 +222,7 @@ def settings():
             session['contact']=contact
             session['email']=email
         conn.commit()
+        message="Settings saved"
         return render_template('settings.html',settings=settings,message=message)
     else:
         cur,conn=connection()
@@ -318,11 +319,13 @@ def notifications():
     data_done=cur.fetchall()
     cur.execute('SELECT request_id, requests.type, content, name, response FROM requests,posts,users WHERE posts.tr_id=requests.tr_id AND requests.requestor=users.user_id AND recipient=? AND response=? ORDER BY request_id DESC',(session['user_id'],'N'))
     data_rejected=cur.fetchall()
-    cur.execute('CREATE TABLE IF NOT EXISTS notifs (notif_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT, sender NUMBER, send_to NUMBER, tr_id NUMBER,name TEXT)')
+    cur.execute('CREATE TABLE IF NOT EXISTS notifs (notif_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT, sender NUMBER, send_to NUMBER, tr_id NUMBER,name TEXT, ack TEXT)')
     conn.commit()
-    cur.execute('SELECT * FROM notifs WHERE sender=? ORDER BY notif_id DESC',(session['user_id'],))
-    notifs=cur.fetchall()
-    return render_template('notifications.html',data_to_be=data_to_be,data_done=data_done,data_rejected=data_rejected,notifs=notifs)
+    cur.execute('SELECT * FROM notifs WHERE sender=? AND ack =? ORDER BY notif_id DESC',(session['user_id'],'NY'))
+    new_notifs=cur.fetchall()
+    cur.execute('SELECT * FROM notifs WHERE sender=? AND ack =? ORDER BY notif_id DESC',(session['user_id'],'Y'))
+    old_notifs=cur.fetchall()
+    return render_template('notifications.html',data_to_be=data_to_be,data_done=data_done,data_rejected=data_rejected,new_notifs=new_notifs,old_notifs=old_notifs)
 
 @app.route('/request/accept/<int:request_id>/<int:send_to>/<int:sender>/<int:tr_id>/')
 @login_required
@@ -331,9 +334,9 @@ def accept_request(request_id,send_to,sender,tr_id):
     cur.execute('UPDATE requests SET response=? WHERE request_id=?',('Y',request_id))
     conn.commit()
 
-    cur.execute('CREATE TABLE IF NOT EXISTS notifs (notif_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT, sender NUMBER, send_to NUMBER, tr_id NUMBER, name TEXT)')
+    cur.execute('CREATE TABLE IF NOT EXISTS notifs (notif_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT, sender NUMBER, send_to NUMBER, tr_id NUMBER, name TEXT, ack TEXT)')
     conn.commit()
-    cur.execute('INSERT INTO notifs (type,sender,send_to,tr_id,name) VALUES (?,?,?,?,?)',('A',sender,send_to,tr_id,session['name']))
+    cur.execute('INSERT INTO notifs (type,sender,send_to,tr_id,name,ack) VALUES (?,?,?,?,?,?)',('A',sender,send_to,tr_id,session['name'],'N'))
     conn.commit()
 
     return redirect(url_for('notifications'))
@@ -345,9 +348,9 @@ def reject_request(request_id,send_to,sender,tr_id):
     cur.execute('UPDATE requests SET response=? WHERE request_id=?',('N',request_id))
     conn.commit()
 
-    cur.execute('CREATE TABLE IF NOT EXISTS notifs (notif_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT, sender NUMBER, send_to NUMBER, tr_id NUMBER,name TEXT)')
+    cur.execute('CREATE TABLE IF NOT EXISTS notifs (notif_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT, sender NUMBER, send_to NUMBER, tr_id NUMBER,name TEXT, ack TEXT)')
     conn.commit()
-    cur.execute('INSERT INTO notifs  (type,sender,send_to,tr_id,name) VALUES (?,?,?,?,?)',('R',sender,send_to,tr_id,session['name']))
+    cur.execute('INSERT INTO notifs  (type,sender,send_to,tr_id,name,ack) VALUES (?,?,?,?,?,?)',('R',sender,send_to,tr_id,session['name'],'N'))
     conn.commit()
 
     return redirect(url_for('notifications'))
@@ -356,7 +359,7 @@ def reject_request(request_id,send_to,sender,tr_id):
 @login_required
 def remove_notif(notif_id):
     cur,conn=connection()
-    cur.execute('DELETE FROM notifs WHERE sender=? AND notif_id=?',(session['user_id'],notif_id))
+    cur.execute('UPDATE notifs SET ack=? WHERE sender=? AND notif_id=?',('Y',session['user_id'],notif_id))
     conn.commit()
     return redirect(url_for('notifications'))
 

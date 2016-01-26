@@ -22,8 +22,8 @@ $(document).ready(function(){
 <div class="container">
   <h2 align="center">Notifications</h2>
   <ul class="nav nav-tabs">
-    <li class="active"><a href="#your_requests">Your Requests {%if notifs|length>0%}<span class="badge">{{notifs|length}}</span>{%endif%}</a></li>
-    <li><a href="#home">New Requests {%if data_to_be|length>0%}<span class="badge">{{data_to_be|length}}</span>{%endif%}</a></li>
+    <li class="active"><a href="#your_requests">Your Requests {%if new_notifs|length>0%}<span class="badge">{{new_notifs|length}}</span>{%endif%}</a></li>
+    <li><a href="#home">Requests from others {%if data_to_be|length>0%}<span class="badge">{{data_to_be|length}}</span>{%endif%}</a></li>
     <li><a href="#menu1">Old Requests</a></li>
     <li><a href="#menu2">Rejected Requests</a></li>
   </ul>
@@ -31,12 +31,12 @@ $(document).ready(function(){
   <div class="tab-content">
 
     <div id="your_requests" class="tab-pane fade in active">
-      {%if notifs|length==0%}
+      {%if new_notifs|length==0%}
       <br><br>
       <p align="center">You have no new updates on your requests.</p>
       {%else:%}
       <h2 align="center">Updates on your requests:</h2>
-      {%for el in notifs:%}
+      {%for el in new_notifs:%}
       <div class="container" align="center" style="width:60%">
         {%if el[1]=='A'%}
       <div class="panel panel-success">
@@ -47,6 +47,15 @@ $(document).ready(function(){
           <a href="{{url_for('remove_notif',notif_id=el[0])}}" class="btn btn-info btn-sm" role="button">Remove notification</a>
         </div>
       </div>
+      {%elif el[1]=='NY':%}
+      <div class="panel panel-warning">
+        <div class="panel-heading">Request sent</div>
+        <div class="panel-body">
+          <p>You sent a request to {{el[5]}}</p>
+          <a href="{{url_for('post',tr_id=el[4])}}" class="btn btn-info btn-sm" role="button">Check out post</a>
+        </div>
+      </div>
+
       {%else%}
 
       <div class="panel panel-danger">
