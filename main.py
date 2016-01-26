@@ -132,7 +132,10 @@ def sell():
         return redirect(url_for('board',num=1))
         #return redirect (url_for('board',num=1))
     else:
-        return render_template('sell.html')
+        cur,conn=connection()
+        cur.execute('SELECT contact FROM users WHERE user_id=?',(session['user_id'],))
+        contact=cur.fetchone()[0]
+        return render_template('sell.html',contact=contact)
 
 @app.route('/seek/',methods=['GET','POST'])
 @login_required
@@ -147,7 +150,10 @@ def seek():
         conn.commit()
         return redirect(url_for('board',num=1))
     else:
-        return render_template('seek.html')
+        cur,conn=connection()
+        cur.execute('SELECT contact FROM users WHERE user_id=?',(session['user_id'],))
+        contact=cur.fetchone()[0]
+        return render_template('seek.html',contact=contact)
 
 
 @app.route('/settings/',methods=['GET','POST'])
@@ -248,7 +254,7 @@ def post(tr_id):
     cur,conn=connection()
     cur.execute('SELECT tr_id, type, posts.user_id, users.name, users.contact, users.email, users.settings, content, selling_p, used_for, add_info FROM posts,users WHERE users.user_id=posts.user_id AND tr_id=?',(tr_id,))
     data=cur.fetchall()[0]
-    cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type_r TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT)')
+    cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type_r TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT, content TEXT)')
     conn.commit()
     cur.execute('SELECT COUNT(*), response FROM requests WHERE tr_id=? and requestor=? and type_r=?',(tr_id,session['user_id'],'C'))
     resp=cur.fetchone()
@@ -276,13 +282,13 @@ def post(tr_id):
     return render_template('post.html',data=data,request_data=request_data)
 
 
-@app.route('/request/<int:tr_id>/<type_r>/<int:recipient>/<recipient_name>/')
+@app.route('/request/<int:tr_id>/<type_r>/<int:recipient>/<recipient_name>/<content>/')
 @login_required
-def req(tr_id,type_r,recipient,recipient_name):
+def req(tr_id,type_r,recipient,recipient_name,content):
     cur,conn=connection()
-    cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT)')
+    cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT, content TEXT)')
     conn.commit()
-    cur.execute('INSERT INTO requests (tr_id,type_r,requestor, requestor_name,recipient,recipient_name,response,ack) VALUES (?,?,?,?,?,?,?,?)',(tr_id,type_r,session['user_id'],session['name'],recipient,recipient_name,'NY','NA'))
+    cur.execute('INSERT INTO requests (tr_id,type_r,requestor, requestor_name,recipient,recipient_name,response,ack, content) VALUES (?,?,?,?,?,?,?,?,?)',(tr_id,type_r,session['user_id'],session['name'],recipient,recipient_name,'NY','NA',content))
     conn.commit()
     return redirect(url_for('post',tr_id=tr_id))
 

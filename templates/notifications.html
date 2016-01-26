@@ -28,11 +28,14 @@ $(document).ready(function(){
     <div class="tab-content">
       <div id="new_notifs" class="tab-pane fade in active">
         <!--recipient stuff-->
+        {%if (recipient_new_notifs|length + requestor_new_notifs|length)==0:%}
+        <br><br><p align="center">Nothing new here</p>
+        {%else:%}
         {%for el in recipient_new_notifs%}
         <div class="panel panel-success">
-          <div class="panel-heading">Request</div>
+          <div class="panel-heading">Request: {{el[9]}}</div>
           <div class="panel-body" align="center">
-            <p>{{el[4]}} is requesting you to share your {%if el[2]=='C'%}contact number{%else%}email address{%endif%}</p>
+            <p>{{el[4]}} is requesting you to share your {%if el[2]=='C'%}contact number{%else%}email address{%endif%} for your post on {{el[9]}}</p>
             <a href="{{url_for('post',tr_id=el[1])}}" class="btn btn-info btn-sm" role="button">View post</a><br><br>
             <a href="{{url_for('accept_request',request_id=el[0])}}" class="btn btn-success btn-sm" role="button">Accept request</a>
             <a href="{{url_for('reject_request',request_id=el[0])}}" class="btn btn-danger btn-sm" role="button">Reject request</a>
@@ -44,43 +47,43 @@ $(document).ready(function(){
         {%for el in requestor_new_notifs%}
         {%if el[7]=='Y'%}
         <div class="panel panel-success">
-          <div class="panel-heading">Accepted</div>
+          <div class="panel-heading">Accepted: {{el[9]}}</div>
           <div class="panel-body" align="center">
-            <p>{{el[6]}} has accepted your request</p>
+            <p>{{el[6]}} has accepted your request for {{el[9]}}</p>
             <a href="{{url_for('post',tr_id=el[1])}}" class="btn btn-info btn-sm" role="button">View post</a><br><br>
             <a href="{{url_for('ack_notif',request_id=el[0])}}" class="btn btn-success btn-sm" role="button">Remove notification</a>
           </div>
         </div>
         {%else:%}
         <div class="panel panel-success">
-          <div class="panel-heading">Rejected </div>
+          <div class="panel-heading">Rejected: {{el[9]}} </div>
           <div class="panel-body">
-            <p>{{el[6]}} has rejected your request</p>
+            <p>{{el[6]}} has rejected your request for {{el[9]}}</p>
             <a href="{{url_for('post',tr_id=el[1])}}" class="btn btn-info btn-sm" role="button">View post</a>
             <a href="{{url_for('ack_notif',request_id=el[0])}}" class="btn btn-danger btn-sm" role="button">Remove notification</a>
           </div>
         </div>
         {%endif%}
         {%endfor%}
-
+        {%endif%}
       </div>
 
       <div id="old_notifs" class="tab-pane fade">
         {%for el in recipient_old_notifs%}
         {%if el[7]=='Y'%}
         <div class="panel panel-success">
-          <div class="panel-heading">Accepted</div>
+          <div class="panel-heading">Accepted: {{el[9]}}</div>
           <div class="panel-body" align="center">
-            <p>You accepted {{el[4]}}'s request</p>
+            <p>You accepted {{el[4]}}'s request for {{el[9]}}</p>
             <a href="{{url_for('post',tr_id=el[1])}}" class="btn btn-success btn-sm" role="button">View Post</a>
           </div>
 
         </div>
         {%else:%}
         <div class="panel panel-danger">
-          <div class="panel-heading">Rejected</div>
+          <div class="panel-heading">Rejected: {{el[9]}}</div>
           <div class="panel-body" align="center">
-            <p>You rejected {{el[4]}}'s request</p>
+            <p>You rejected {{el[4]}}'s request for {{el[9]}}</p>
             <a href="{{url_for('post',tr_id=el[1])}}" class="btn btn-danger btn-sm" role="button">View Post</a>
           </div>
 
@@ -91,17 +94,17 @@ $(document).ready(function(){
       {%for el in requestor_old_notifs%}
       {%if el[7]=='Y'%}
       <div class="panel panel-success">
-        <div class="panel-heading">Accepted</div>
+        <div class="panel-heading">Accepted: {{el[9]}}</div>
         <div class="panel-body" align="center">
-          <p>{{el[6]}} accepted your request</p>
+          <p>{{el[6]}} accepted your request for {{el[9]}}</p>
           <a href="{{url_for('post',tr_id=el[1])}}" class="btn btn-success btn-sm" role="button">View Post</a>
         </div>
       </div>
           {%else:%}
           <div class="panel panel-danger">
-            <div class="panel-heading">Rejected</div>
+            <div class="panel-heading">Rejected: {{el[9]}}</div>
             <div class="panel-body" align="center">
-              <p>{{el[6]}} rejected your request</p>
+              <p>{{el[6]}} rejected your request for {{el[9]}}</p>
               <a href="{{url_for('post',tr_id=el[1])}}" class="btn btn-danger btn-sm" role="button">View Post</a>
             </div>
           </div>

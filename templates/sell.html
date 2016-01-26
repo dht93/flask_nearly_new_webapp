@@ -6,21 +6,23 @@
 {%block sell_active%}class="active"{%endblock%}
 
 {%block body%}
-  <div class="container-fluid"  style="min-height:100%;margin-left:40%;">
-  	<div class="container">
+<div class="container" align="center">
+  {%if contact=='NULL'%}<br>
+  <h4>Before posting an ad please consider adding your contact number to your account. This will help others get in contact with you easily. Your private information won't be shared with anybody without your consent</h3>
+  <h5>Head over to <a href="{{url_for('settings')}}" style="text-decoration:none;">Settings</a> to know more.<h4>
+    {%endif%}
   		<br>
-  		<h4 style="margin-left:4%;">Enter details:</h4>
+  		<h4>Enter details:</h4>
   		<br>
-  		<form action="" class="form-inline" method="post">
-  			<input required type="text" class="form-control" placeholder = "You're selling what?" name="content" value="{{request.form.content}}" onclick="inp1in();"onblur="inp1out();"><p id="inp1" style="display:none;"></p><br>
-        <input required type="text" class="form-control" placeholder = "You're expecting to sell at?" name="selling_p" value="{{request.form.selling_p}}" onclick="inp2in();"onblur="inp2out();"><p id="inp2" style="display:none;"></p><br>
-        <input required type="text" class="form-control" placeholder = "Used for?" name="used_for" value="{{request.form.used_for}}" onclick="inp3in();"onblur="inp3out();"><p id="inp3" style="display:none;"></p><br>
-  			<input type="text" class="form-control" placeholder = "Any additional info?" name="add_info" value="{{request.form.add_info}}" onclick="inp4in();"onblur="inp4out();"><p id="inp4" style="display:none;"></p><br><br>
+  		<form action=""  method="post">
+  			<input required type="text" class="form-control" placeholder = "You're selling what?" name="content" value="{{request.form.content}}" onfocus="inp1in();"onblur="inp1out();"><p id="inp1" style="display:none;"></p><br>
+        <input required type="text" class="form-control" placeholder = "You're expecting to sell at?" name="selling_p" value="{{request.form.selling_p}}" onfocus="inp2in();"onblur="inp2out();"><p id="inp2" style="display:none;"></p><br>
+        <input required type="text" class="form-control" placeholder = "Used for?" name="used_for" value="{{request.form.used_for}}" onfocus="inp3in();"onblur="inp3out();"><p id="inp3" style="display:none;"></p><br>
+  			<input type="text" class="form-control" placeholder = "Any additional info?" name="add_info" value="{{request.form.add_info}}" onfocus="inp4in();"onblur="inp4out();"><p id="inp4" style="display:none;"></p><br>
         <input class="btn btn-default" type="submit" value="Post ad" style="margin-left:6%;">
   		</form>
       {%if error%}
   <p>{{error}}</p>
   {%endif%}
-  </div>
-  	</div>
+</div>
 {%endblock%}

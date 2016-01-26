@@ -1,8 +1,10 @@
 {%extends 'header.html'%}
 
 {%block body%}
-  <div class="page-header" align="center">
-  <h1> {%if data[1]=='S'%}Sell Request{%else%}Seek Request{%endif%}</h1>
+
+{%if not data[3]==session['name']:%}
+<div class="page-header" align="center">
+<h1> {%if data[1]=='S'%}Sell Request{%else%}Seek Request{%endif%}</h1>
 </div>
 <div class="container" align="center" style="width:60%">
 <div class="panel panel-info">
@@ -22,34 +24,58 @@
     <li class="list-group-item">Item used by seller for: {{data[9]}}</li>{%endif%}
     {%if not data[10]=='NULL'%}
     <li class="list-group-item">Additional information: {{data[10]}}</li>{%endif%}
+    {%if not data[4]=='NULL':%}
     {%if data[6][0]=='1':%}
         <li class="list-group-item">Contact Number: {{data[4]}}</li>
     {%else%}
         {%if request_data[0]=='NA':%}  <!--person has not yet requested-->
-            <li class="list-group-item"><a href="{{url_for('req',tr_id=data[0],type_r='C',recipient=data[2],recipient_name=data[3])}}" class="btn btn-info" role="button">Request Contact Number</a></li>
+            <li class="list-group-item"><a href="{{url_for('req',tr_id=data[0],type_r='C',recipient=data[2],recipient_name=data[3],content=data[7])}}" class="btn btn-info" role="button">Request Contact Number</a></li>
         {%elif request_data[0]=='NY':%} <!--recipient has not yet responded-->
             <li class="list-group-item"><button class="btn btn-warning" role="button">Contact Number requested</button></li>
             {%elif request_data[0]=='Y'%} <!-- recipient accepted request -->
-            <li class="list-group-item">On your request :contact Number: {{data[4]}}</li>
+            <li class="list-group-item">On your request:<br><button class="btn btn-success" role="button">Contact Number: {{data[4]}}</button></li>
             {%else%}  <!-- recipient declined request -->
-            <li class="list-group-item">Your request got rejected</li> {%endif%}{%endif%}
+            <li class="list-group-item"><button class="btn btn-danger" role="button">Your request got rejected</button></li> {%endif%}{%endif%}
+            {%else:%}
+            <li class="list-group-item">Contact number not provided by {{data[3]}}</li>
+            {%endif%}
         {%if data[6][0]=='1':%}
             <li class="list-group-item">Email Address: {{data[5]}}</li>
         {%else%}
             {%if request_data[1]=='NA':%}  <!--person has not yet requested-->
-                <li class="list-group-item"><a href="{{url_for('req',tr_id=data[0],type_r='E',recipient=data[2],recipient_name=data[3])}}" class="btn btn-info" role="button">Request Email Address</a></li>
+                <li class="list-group-item"><a href="{{url_for('req',tr_id=data[0],type_r='E',recipient=data[2],recipient_name=data[3],content=data[7])}}" class="btn btn-info" role="button">Request Email Address</a></li>
             {%elif request_data[1]=='NY':%} <!--recipient has not yet responded-->
                 <li class="list-group-item"><button class="btn btn-warning" role="button">Email requested</button></li>
                 {%elif request_data[1]=='Y'%} <!-- recipient accepted request -->
-                <li class="list-group-item">On your request :email: {{data[5]}}</li>
+                <li class="list-group-item">On your request:<br><button class="btn btn-success" role="button">Email: {{data[5]}}</button></li>
                 {%else%}  <!-- recipient declined request -->
-                <li class="list-group-item">Your request got rejected</li> {%endif%}{%endif%}
+                <li class="list-group-item"><button class="btn btn-danger" role="button">Your request got rejected</button></li> {%endif%}{%endif%}
   </ul>
 </div>
 {%if message:%}
 <div class="alert alert-success" role="alert">{{message}}</div>
 {%endif%}
 </div>
+{%else%}
+<div class="page-header" align="center">
+<h1>Your Post</h1>
+</div>
+<div class="container" align="center" style="width:60%">
+<div class="panel panel-info">
+  <div class="panel-heading">Item: {{data[7]}}</div>
+  <div class="panel-body">
+    <ul class="list-group">
+      {%if not data[8]=='NULL'%}
+      <li class="list-group-item">Selling Price expected by seller: {{data[8]}}</li>{%endif%}
+      {%if not data[9]=='NULL'%}
+      <li class="list-group-item">Item used by seller for: {{data[9]}}</li>{%endif%}
+      {%if not data[10]=='NULL'%}
+      <li class="list-group-item">Additional information: {{data[10]}}</li>{%endif%}
+      </ul>
+    </div>
+  </div>
+</div>
 
+{%endif%}
 
 {%endblock%}

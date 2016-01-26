@@ -4,7 +4,7 @@ function getRandomIntInclusive(min, max) {
 var arr1=['Whatever you wanna sell, yo. Books, xeroxed notes, anything.','eg. Computer Networks (6th sem) xerox notes','eg. Introduction to Algorithms, 3rd. Ed, by CLRS','eg. Computer Networks by Tanenbaum','Whatever you wanna sell, yo!']
 var arr2=['Enter 0 if you wanna give away for free!',"eg. 300/-. Or you may write 0 if you're willing to give away for free."]
 var arr3=['eg. 6 months','eg. 1 year', 'eg. 2 years','eg. just bought it!','eg. 4 months']
-var arr4=['eg. In pretty good shape!','eg. Works like a charm!','eg. Scribblings on some pages',"eg. I'm givin' it away for free but I expect a coffee in return!"]
+var arr4=['eg. In pretty good shape!','eg. Works like a charm!','eg. Scribblings on some pages',"eg. I'm givin' it away for free but I expect coffee in return!"]
 
 function inp1in(){
   text=arr1[getRandomIntInclusive(0,arr1.length-1)];
