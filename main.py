@@ -50,7 +50,7 @@ def register_page():
             session['settings']=settings
             session['email']=email
             session['contact']='NULL'
-            return redirect(url_for('board',num=1))
+            return redirect(url_for('index'))
         else:
             error="This user name has already been taken. Please choose another."
             return render_template('register.html',error=error)

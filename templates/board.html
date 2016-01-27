@@ -3,32 +3,66 @@
 {%block board_active%}class="active"
 {%endblock%}
 
+{%block head%}
+<link rel="stylesheet" href="{{url_for('static',filename='css/board_test.css')}}" type="text/css">
+{%endblock%}
+
 {%block body%}
   <div class="page-header" align="center">
-  <h1>Board <small>Check out posts</small></h1>
+  <h1>Board</h1>
 </div>
-{%if posts_on_page==0:%}
-<p align="center">There are no posts at the moment. Post the first ad at <a href="{{url_for('sell')}}">sell</a> or <a href="{{url_for('seek')}}">seek</a>.</p>
-{%else:%}
-{%if posts_on_page>2:%}
-<div class="container" align="center">
-<nav>
-  <ul class="pagination">
 
-    <li {%if current==1:%}class="disabled"><a{%else:%}><a href="{{url_for('board',num=current-1)}}"{%endif%} aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
-    {%for p in range(1,no_of_pages+1)%}
-    <li {%if p==current:%}class="active"><a>{{p}}{%else:%}><a href="{{url_for('board',num=p)}}">{{p}}{%endif%} <span class="sr-only"></span></a></li>
-    {%endfor%}
-    <li {%if current==no_of_pages:%}class="disabled"><a{%else:%}><a href="{{url_for('board',num=current+1)}}"{%endif%} aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
-  </ul>
-</nav>
-</div>
-{%endif%}
-<div class="container" align="center">
+
+
   {%for el in data:%}
-<div class="panel panel-info" style="width:40%;">
+  <table class={%if el[1]=='R' and el[6]=='NULL'%}"container2"{%else%}"container1"{%endif%} align="center">
+  <tbody>
+    <tr>
+      <td colspan="4" {%if el[1]=='S'%} class="user_sell" {%else:%}class="user_seek" {%endif%}><div align="center"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">{%if el[1]=='S'%}SELL: {%else:%}SEEK: {%endif%}{{el[3]}}</a></b></div></td>
+      <td colspan="2" {%if el[1]=='S'%} class="posted_sell" {%else:%}class="posted_seek" {%endif%}><div align="center"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">Posted By:<br>{{el[2]}}</a></div></td>
+    </tr>
+      {%if el[1]=='S'%}
+      {%if not el[6]=='NULL':%}
+      <tr>
+      <td colspan="2" class="social"><b>Selling Price:</b><br/>{{el[4]}}</td>
+      <td colspan="2"  class="social"><b>Used for:</b><br/>{{el[5]}}</td>
+    <td colspan="2"  class="social"><b>Add. info:</b><br/>{{el[6]}}</td>
+  </tr>
+    {%else%}
+    <tr>
+    <td colspan="3" class="social"><b>Selling Price:</b><br/>{{el[4]}}</td>
+    <td colspan="3"  class="social"><b>Used for:</b><br/>{{el[5]}}</td>
+  </tr>
+    {%endif%}
+    {%else:%}
+    {%if not el[6]=='NULL':%}
+    <tr>
+    <td colspan="6"  class="social"><b>Add. info:</b><br/>{{el[6]}}</td>
+  </tr>
+    {%endif%}
+    {%endif%}
+
+
+  </tbody>
+</table>
+
+<br>
+<br>
+
+
+
+
+
+
+
+
+
+
+
+<!--
+<div class="panel panel-info">
   <div class="panel-heading">
-    <h3 class="panel-title">{%if el[1]=='S'%}<span style="float:right;" class="badge">#{{el[0]}}</span><span style="float:left; "class="label label-primary">Sell</span> {{el[3]}}{%else:%}<span style="float:right;" class="badge">#{{el[0]}}</span><span style="float:left;" class="label label-warning">Seek</span>{{el[3]}}{%endif%}</h3>
+    <h3 class="panel-title">{%if el[1]=='S'%}<span style="float:right;" class="badge">#{{el[0]}}</span><span style="float:left; "class="label label-primary">Sell</span>Item: {{el[3]}}{%else:%}<span style="float:right;" class="badge">#{{el[0]}}</span><span style="float:left;" class="label label-warning">Seek</span>Item: {{el[3]}}{%endif%}</h3>
   </div>
   <div class="panel-body">
     <p>Posted by: {{el[2]}}</p>
@@ -51,8 +85,9 @@
   </div>
 
 </div>
+-->
 {%endfor%}
-</div>
+
 <div class="container" align="center">
 <nav>
   <ul class="pagination">
@@ -65,5 +100,5 @@
   </ul>
 </nav>
 </div>
-{%endif%}
+
 {%endblock%}

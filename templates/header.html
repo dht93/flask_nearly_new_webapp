@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8">
 <link rel="stylesheet" href="{{url_for('static',filename="css/bootstrap.css")}}" type="text/css">
+<link rel="stylesheet" href="{{url_for('static',filename="css/body.css")}}" type="text/css">
 <!--<link rel="stylesheet" href="../static/css/bootstrap.css" type="text/css">-->
 {%block head%}
 {%endblock%}
 </head>
 <body {%if session.logged_in%} style="padding-top: 50px;"{%endif%}>
   {%if session.logged_in:%}
-  <nav class="navbar navbar-default navbar-fixed-top">
+  <nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
     <div class="container-fluid">
       <div class="navbar-header">
         <a class="navbar-brand" href="{{url_for('index')}}">Home</a>

@@ -1,0 +1,98 @@
+
+body
+{
+  background-color:#EBEEEF;
+  font-family:tahoma;
+  cursor:default;
+}
+.container1
+{
+  width:500px;
+  height:130px;
+  background-color:#fff;
+
+  color:#fff;
+  -moz-box-shadow: 5px 5px 5px rgba(218,224,228,0.8);
+-webkit-box-shadow: 5px 5px 5px rgba(218,224,228,0.8);
+box-shadow: 5px 5px 5px rgba(218,224,228,0.8);
+}
+.container2
+{
+  width:500px;
+  height:70px;
+  background-color:#fff;
+
+  color:#fff;
+  -moz-box-shadow: 5px 5px 5px rgba(218,224,228,0.8);
+-webkit-box-shadow: 5px 5px 5px rgba(218,224,228,0.8);
+box-shadow: 5px 5px 5px rgba(218,224,228,0.8);
+}
+
+td
+{
+  height:50px;
+  width:60px;
+  padding:5px;
+}
+.user_sell
+{
+  font-size:16px;
+  background-color:#4CB9E0;
+  text-align:center;
+}
+
+.user_seek
+{
+  font-size:16px;
+  background-color:#709d2f;
+  text-align:center;
+}
+
+
+.posted_sell
+{
+  font-size:16px;
+  background-color:#5E7275;
+  text-align:center;
+  -webkit-transition: all 2s;
+ -moz-transition: all 2s;
+ transition: all 1s;
+}
+.posted_sell:hover
+{
+  background-color:#4CB9E0;
+     -webkit-transition: all 2s;
+    -moz-transition: all 2s;
+    transition: all 1s;
+  cursor:pointer;
+}
+.posted_seek
+{
+  font-size:16px;
+  background-color:#5E7275;
+  text-align:center;
+  -webkit-transition: all 2s;
+ -moz-transition: all 2s;
+ transition: all 1s;
+}
+.posted_seek:hover
+{
+  background-color:#709d2f;
+     -webkit-transition: all 2s;
+    -moz-transition: all 2s;
+    transition: all 1s;
+  cursor:pointer;
+}
+
+.social
+{
+  color:#556B6E;
+  text-align:center;
+  line-height:20px;
+  font-size:14px;
+  border:1px solid #E3E9EA;
+}
+.social b
+{
+  font-size:18px;
+}
