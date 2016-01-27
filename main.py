@@ -50,6 +50,8 @@ def register_page():
             session['settings']=settings
             session['email']=email
             session['contact']='NULL'
+            cur.close()
+            conn.close()
             return redirect(url_for('index'))
         else:
             error="This user name has already been taken. Please choose another."
@@ -69,6 +71,8 @@ def login_page():
         count=cur.fetchone()[0]
         if count==0:
             error="Invalid credentials. Please try again."
+            cur.close()
+            conn.close()
             return render_template('login.html',error=error)
         else:
             password=request.form['password']
@@ -82,8 +86,12 @@ def login_page():
                 session['settings']=data[6]
                 session['email']=data[4]
                 session['contact']=data[3]
+                cur.close()
+                conn.close()
                 return redirect(url_for('board',num=1))
             else:
+                cur.close()
+                conn.close()
                 error="Invalid credentials. Please try again."
                 return render_template('login.html',error=error)
     else:
@@ -114,6 +122,8 @@ def board(num):
         end=10
     cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id FROM posts,users WHERE posts.user_id=users.user_id AND tr_id>? AND tr_id<=? ORDER BY tr_id DESC',(start,end))
     data=cur.fetchall()
+    cur.close()
+    conn.close()
     return render_template('board.html',data=data,no_of_pages=no_of_pages, current=current, posts_on_page=len(data))
 
 @app.route('/sell/',methods=['GET','POST'])
@@ -130,12 +140,16 @@ def sell():
             add_info='NULL'
         cur.execute('INSERT INTO posts (type, user_id, content, selling_p, used_for, add_info) VALUES (?,?,?,?,?,?)',('S',session['user_id'],content,selling_p,used_for,add_info))
         conn.commit()
+        cur.close()
+        conn.close()
         return redirect(url_for('board',num=1))
         #return redirect (url_for('board',num=1))
     else:
         cur,conn=connection()
         cur.execute('SELECT contact FROM users WHERE user_id=?',(session['user_id'],))
         contact=cur.fetchone()[0]
+        cur.close()
+        conn.close()
         return render_template('sell.html',contact=contact)
 
 @app.route('/seek/',methods=['GET','POST'])
@@ -149,11 +163,15 @@ def seek():
             add_info='NULL'
         cur.execute('INSERT INTO posts (type, user_id, content, selling_p, used_for, add_info) VALUES (?,?,?,?,?,?)',('R',session['user_id'],content,'NULL','NULL',add_info))
         conn.commit()
+        cur.close()
+        conn.close()
         return redirect(url_for('board',num=1))
     else:
         cur,conn=connection()
         cur.execute('SELECT contact FROM users WHERE user_id=?',(session['user_id'],))
         contact=cur.fetchone()[0]
+        cur.close()
+        conn.close()
         return render_template('seek.html',contact=contact)
 
 
@@ -230,25 +248,29 @@ def settings():
             session['email']=email
         conn.commit()
         message="Settings saved"
+        cur.close()
+        conn.close()
         return render_template('settings.html',settings=settings,message=message)
     else:
         cur,conn=connection()
         cur.execute('SELECT settings FROM users WHERE user_id=?',(session['user_id'],))
         settings=cur.fetchone()[0]
         message=None
+        cur.close()
+        conn.close()
         return render_template('settings.html',settings=settings,message=None)
 
 
 @app.route('/your_posts/')
 @login_required
 def your_posts():
-    try:
-        cur,conn=connection()
-        cur.execute('SELECT * FROM posts WHERE user_id=? ORDER BY tr_id DESC',(session['user_id'],))
-        data=cur.fetchall()
-        return render_template('your_posts.html',data=data)
-    except Exception as e:
-        return str(e)
+    cur,conn=connection()
+    cur.execute('SELECT * FROM posts WHERE user_id=? ORDER BY tr_id DESC',(session['user_id'],))
+    data=cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('your_posts.html',data=data)
+
 
 @app.route('/post/<int:tr_id>/')
 def post(tr_id):
@@ -280,6 +302,8 @@ def post(tr_id):
         else:
             r_e='N'
     request_data=[r_c,r_e]
+    cur.close()
+    conn.close()
     return render_template('post.html',data=data,request_data=request_data)
 
 
@@ -291,6 +315,8 @@ def req(tr_id,type_r,recipient,recipient_name,content):
     conn.commit()
     cur.execute('INSERT INTO requests (tr_id,type_r,requestor, requestor_name,recipient,recipient_name,response,ack, content) VALUES (?,?,?,?,?,?,?,?,?)',(tr_id,type_r,session['user_id'],session['name'],recipient,recipient_name,'NY','NA',content))
     conn.commit()
+    cur.close()
+    conn.close()
     return redirect(url_for('post',tr_id=tr_id))
 
 @app.route('/remove_post/<int:tr_id>/')
@@ -299,6 +325,8 @@ def remove_post(tr_id):
     cur,conn=connection()
     cur.execute('DELETE FROM posts WHERE tr_id=?',(tr_id,))
     conn.commit()
+    cur.close()
+    conn.close()
     return redirect(url_for('your_posts'))
 
 @app.route('/notifications/')
@@ -317,6 +345,8 @@ def notifications():
     #requestor_old_notifs
     cur.execute('SELECT * FROM requests WHERE requestor=? AND ack=? ORDER BY request_id DESC',(session['user_id'],'S'))
     requestor_old_notifs=cur.fetchall()
+    cur.close()
+    conn.close()
     return render_template('notifications.html',recipient_new_notifs=recipient_new_notifs,recipient_old_notifs=recipient_old_notifs,requestor_new_notifs=requestor_new_notifs,requestor_old_notifs=requestor_old_notifs)
 
 @app.route('/request/accept/<int:request_id>/')
@@ -325,6 +355,8 @@ def accept_request(request_id):
     cur,conn=connection()
     cur.execute('UPDATE requests SET response=?,ack=? WHERE request_id=?',('Y','NS',request_id))
     conn.commit()
+    cur.close()
+    conn.close()
     return redirect(url_for('notifications'))
 
 @app.route('/request/reject/<int:request_id>/')
@@ -333,6 +365,8 @@ def reject_request(request_id):
     cur,conn=connection()
     cur.execute('UPDATE requests SET response=?,ack=? WHERE request_id=?',('N','NS',request_id))
     conn.commit()
+    cur.close()
+    conn.close()
     return redirect(url_for('notifications'))
 
 @app.route('/notif/ack/<int:request_id>/')
@@ -341,6 +375,8 @@ def ack_notif(request_id):
     cur,conn=connection()
     cur.execute('UPDATE requests SET ack=? WHERE request_id=?',('S',request_id))
     conn.commit()
+    cur.close()
+    conn.close()
     return redirect(url_for('notifications'))
 
 @app.route('/logout/')
