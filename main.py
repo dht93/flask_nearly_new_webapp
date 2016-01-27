@@ -311,7 +311,7 @@ def post(tr_id):
 @login_required
 def req(tr_id,type_r,recipient,recipient_name,content):
     cur,conn=connection()
-    cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT, content TEXT)')
+    cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type_r TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT, content TEXT)')
     conn.commit()
     cur.execute('INSERT INTO requests (tr_id,type_r,requestor, requestor_name,recipient,recipient_name,response,ack, content) VALUES (?,?,?,?,?,?,?,?,?)',(tr_id,type_r,session['user_id'],session['name'],recipient,recipient_name,'NY','NA',content))
     conn.commit()
@@ -333,6 +333,8 @@ def remove_post(tr_id):
 @login_required
 def notifications():
     cur,conn=connection()
+    cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT, content TEXT)')
+    conn.commit()
     #recipient_new_notifs
     cur.execute('SELECT * FROM requests WHERE recipient=? AND response=? ORDER BY request_id DESC',(session['user_id'],'NY'))
     recipient_new_notifs=cur.fetchall()

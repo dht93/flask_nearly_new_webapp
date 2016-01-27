@@ -8,40 +8,41 @@
 {%endblock%}
 
 {%block body%}
-  <div class="page-header" align="center">
-  <h1>Board</h1>
-</div>
-
-
-
+<br><br>
   {%for el in data:%}
-  <table class={%if el[1]=='R' and el[6]=='NULL'%}"container2"{%else%}"container1"{%endif%} align="center">
+  <table class="container1" align="center">
   <tbody>
+    {%if el[1]=='S'%}
+    {%if not el[6]=='NULL'%}
     <tr>
-      <td colspan="4" {%if el[1]=='S'%} class="user_sell" {%else:%}class="user_seek" {%endif%}><div align="center"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">{%if el[1]=='S'%}SELL: {%else:%}SEEK: {%endif%}{{el[3]}}</a></b></div></td>
-      <td colspan="2" {%if el[1]=='S'%} class="posted_sell" {%else:%}class="posted_seek" {%endif%}><div align="center"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">Posted By:<br>{{el[2]}}</a></div></td>
+      <td colspan="1" class="user_sell"><div align="center"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">SELL: {{el[3]}}</a></b></div></td>
+      <td colspan="1" class="posted_sell"><div align="center"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">Posted By:<br>{{el[2]}}</a></div></td>
+        <td colspan="1" class="posted_sell1"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">Selling Price: </b>{{el[4]}}</a></td>
+        <td colspan="1"  class="posted_sell2"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">Used for: </b>{{el[5]}}</a></td>
+      <td colspan="1"  class="posted_sell3"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">Add. info: </b>{{el[6]}}</a></td>
     </tr>
-      {%if el[1]=='S'%}
-      {%if not el[6]=='NULL':%}
-      <tr>
-      <td colspan="2" class="social"><b>Selling Price:</b><br/>{{el[4]}}</td>
-      <td colspan="2"  class="social"><b>Used for:</b><br/>{{el[5]}}</td>
-    <td colspan="2"  class="social"><b>Add. info:</b><br/>{{el[6]}}</td>
-  </tr>
-    {%else%}
-    <tr>
-    <td colspan="3" class="social"><b>Selling Price:</b><br/>{{el[4]}}</td>
-    <td colspan="3"  class="social"><b>Used for:</b><br/>{{el[5]}}</td>
-  </tr>
-    {%endif%}
     {%else:%}
-    {%if not el[6]=='NULL':%}
     <tr>
-    <td colspan="6"  class="social"><b>Add. info:</b><br/>{{el[6]}}</td>
-  </tr>
-    {%endif%}
-    {%endif%}
-
+      <td colspan="4" class="user_sell"><div align="center"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">SELL: {{el[3]}}</a></b></div></td>
+      <td colspan="4" class="posted_sell"><div align="center"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">Posted By:<br>{{el[2]}}</a></div></td>
+        <td colspan="2" class="posted_sell"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">Selling Price: </b>{{el[4]}}</a></td>
+        <td colspan="2"  class="posted_sell"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">Used for: </b>{{el[5]}}</a></td>
+    </tr>
+      {%endif%}
+      {%else:%}
+      {%if not el[6]=='NULL'%}
+      <tr>
+        <td colspan="2" class="user_seek"><div align="center"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">SEEK: {{el[3]}}</a></b></div></td>
+        <td colspan="2" class="posted_seek"><div align="center"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">Posted By:<br>{{el[2]}}</a></div></td>
+          <td colspan="2"  class="posted_sell"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">Add. info: </b><br>{{el[6]}}</a></td>
+      </tr>
+      {%else%}
+      <tr>
+        <td colspan="3" class="user_seek"><div align="center"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">SEEK: {{el[3]}}</a></b></div></td>
+        <td colspan="3" class="posted_seek"><div align="center"><b><a href="{{url_for('post',tr_id=el[0])}}" style="text-decoration:none;color:white;">Posted By:<br>{{el[2]}}</a></div></td>
+        </tr>
+        {%endif%}
+        {%endif%}
 
   </tbody>
 </table>

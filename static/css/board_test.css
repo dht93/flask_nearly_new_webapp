@@ -7,8 +7,8 @@ body
 }
 .container1
 {
-  width:500px;
-  height:130px;
+  width:1000px;
+  height:85px;
   background-color:#fff;
 
   color:#fff;
@@ -18,8 +18,8 @@ box-shadow: 5px 5px 5px rgba(218,224,228,0.8);
 }
 .container2
 {
-  width:500px;
-  height:70px;
+  width:1000px;
+  height:85px;
   background-color:#fff;
 
   color:#fff;
