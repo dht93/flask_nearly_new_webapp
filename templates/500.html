@@ -1,9 +1,39 @@
-{%extends 'header.html'%}
-
-{%block body%}
-<div class="container" align="center">
-  <h1>Five hundred, yo!</h1>
-  <h3>Internal Server Error</h3>
-  <h4>Sorry about that. Feel free to let me know about the error at dhruvt93@gmail.com</h4>
-</div>
-{%endblock%}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="{{url_for('static',filename="css/bootstrap.css")}}" type="text/css">
+<link rel="stylesheet" href="{{url_for('static',filename="css/body.css")}}" type="text/css">
+<!--<link rel="stylesheet" href="../static/css/bootstrap.css" type="text/css">-->
+</head>
+<body {%if session.logged_in%} style="padding-top: 50px;"{%endif%}>
+  {%if session.logged_in:%}
+  <nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="{{url_for('index')}}">Home</a>
+      </div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li {%block board_active%}{%endblock%}><a href="{{url_for('board',num=1)}}">Board <span class="sr-only">(current)</span></a></li>
+          <li {%block sell_active%}{%endblock%}><a href="{{url_for('sell')}}">Sell</a></li>
+          <li {%block seek_active%}{%endblock%}><a href="{{url_for('seek')}}">Seek</a></li>
+          <li {%block your_posts_active%}{%endblock%}><a href="{{url_for('your_posts')}}">Your Posts</a></li>
+          <li {%block notifications_active%}{%endblock%}><a href="{{url_for('notifications')}}">Notifications</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li {%block about_active%}{%endblock%}><a href="{{url_for('about')}}">About</a></li>
+          <li {%block settings_active%}{%endblock%}><a href="{{url_for('settings')}}">Settings</a></li>
+          <li><a href="{{url_for('logout')}}">Logout</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  {%endif%}
+  <div class="container" align="center">
+    <h1>Five hundred, yo!</h1>
+    <h3>Internal Server Error</h3>
+    <h4>Sorry about that. Feel free to let me know about the error at dhruvt93@gmail.com</h4>
+  </div>
+</body>
+</html>

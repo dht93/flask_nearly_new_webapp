@@ -21,9 +21,27 @@ def connection():
     cur=conn.cursor()
     return (cur,conn)
 
+def get_notifs():
+    cur,conn=connection()
+    cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT, content TEXT)')
+    conn.commit()
+    #recipient_new_notifs
+    cur.execute('SELECT COUNT (*) FROM requests WHERE recipient=? AND response=? ORDER BY request_id DESC',(session['user_id'],'NY'))
+    rec=cur.fetchone()[0]
+    #requestor_new_notifs
+    cur.execute('SELECT COUNT (*) FROM requests WHERE requestor=? AND ack=? ORDER BY request_id DESC',(session['user_id'],'NS'))
+    req=cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    notif_count=rec+req
+    return notif_count
+
 @app.route('/')
 def index():
-    return render_template('home.html')
+    notif_count=0
+    if session.get('logged_in',-1)==True:
+        notif_count=get_notifs()
+    return render_template('home.html',notif_count=notif_count)
 
 @app.route('/register/',methods=['GET','POST'])
 def register_page():
@@ -124,7 +142,8 @@ def board(num):
     data=cur.fetchall()
     cur.close()
     conn.close()
-    return render_template('board.html',data=data,no_of_pages=no_of_pages, current=current, posts_on_page=len(data))
+    notif_count=get_notifs()
+    return render_template('board.html',data=data,no_of_pages=no_of_pages, current=current, posts_on_page=len(data),notif_count=notif_count)
 
 @app.route('/sell/',methods=['GET','POST'])
 @login_required
@@ -150,7 +169,8 @@ def sell():
         contact=cur.fetchone()[0]
         cur.close()
         conn.close()
-        return render_template('sell.html',contact=contact)
+        notif_count=get_notifs()
+        return render_template('sell.html',contact=contact,notif_count=notif_count)
 
 @app.route('/seek/',methods=['GET','POST'])
 @login_required
@@ -172,7 +192,8 @@ def seek():
         contact=cur.fetchone()[0]
         cur.close()
         conn.close()
-        return render_template('seek.html',contact=contact)
+        notif_count=get_notifs()
+        return render_template('seek.html',contact=contact,notif_count=notif_count)
 
 
 @app.route('/settings/',methods=['GET','POST'])
@@ -191,7 +212,8 @@ def settings():
                     error='You want your contact number to be displayed on your posts by default. You need to provide a contact number for that.'
                     cur.execute('SELECT settings FROM users WHERE user_id=?',(session['user_id'],))
                     settings=cur.fetchone()[0]
-                    return render_template('settings.html',error=error,settings=settings, message=None)
+                    notif_count=get_notifs()
+                    return render_template('settings.html',error=error,settings=settings, message=None,notif_count=notif_count)
                 else:
                     update=1
                     to_save=contact
@@ -250,7 +272,8 @@ def settings():
         message="Settings saved"
         cur.close()
         conn.close()
-        return render_template('settings.html',settings=settings,message=message)
+        notif_count=get_notifs()
+        return render_template('settings.html',settings=settings,message=message,notif_count=notif_count)
     else:
         cur,conn=connection()
         cur.execute('SELECT settings FROM users WHERE user_id=?',(session['user_id'],))
@@ -258,7 +281,8 @@ def settings():
         message=None
         cur.close()
         conn.close()
-        return render_template('settings.html',settings=settings,message=None)
+        notif_count=get_notifs()
+        return render_template('settings.html',settings=settings,message=None,notif_count=notif_count)
 
 
 @app.route('/your_posts/')
@@ -269,7 +293,8 @@ def your_posts():
     data=cur.fetchall()
     cur.close()
     conn.close()
-    return render_template('your_posts.html',data=data)
+    notif_count=get_notifs()
+    return render_template('your_posts.html',data=data,notif_count=notif_count)
 
 
 @app.route('/post/<int:tr_id>/')
@@ -304,7 +329,8 @@ def post(tr_id):
     request_data=[r_c,r_e]
     cur.close()
     conn.close()
-    return render_template('post.html',data=data,request_data=request_data)
+    notif_count=get_notifs()
+    return render_template('post.html',data=data,request_data=request_data, notif_count=notif_count)
 
 
 @app.route('/request/<int:tr_id>/<type_r>/<int:recipient>/<recipient_name>/<content>/')
@@ -349,7 +375,8 @@ def notifications():
     requestor_old_notifs=cur.fetchall()
     cur.close()
     conn.close()
-    return render_template('notifications.html',recipient_new_notifs=recipient_new_notifs,recipient_old_notifs=recipient_old_notifs,requestor_new_notifs=requestor_new_notifs,requestor_old_notifs=requestor_old_notifs)
+    notif_count=get_notifs()
+    return render_template('notifications.html',recipient_new_notifs=recipient_new_notifs,recipient_old_notifs=recipient_old_notifs,requestor_new_notifs=requestor_new_notifs,requestor_old_notifs=requestor_old_notifs,notif_count=notif_count)
 
 @app.route('/request/accept/<int:request_id>/')
 @login_required
@@ -391,14 +418,17 @@ def logout():
 @app.route('/about/')
 @login_required
 def about():
-    return render_template('about.html')
+    notif_count=get_notifs()
+    return render_template('about.html',notif_count=notif_count)
 
 @app.errorhandler(404)
 def page_not_found(e):
+
     return render_template('404.html')
 
-@app.errorhandler(404)
+@app.errorhandler(500)
 def page_not_found(e):
+
     return render_template('500.html')
 
 

@@ -21,7 +21,7 @@
           <li {%block sell_active%}{%endblock%}><a href="{{url_for('sell')}}">Sell</a></li>
           <li {%block seek_active%}{%endblock%}><a href="{{url_for('seek')}}">Seek</a></li>
           <li {%block your_posts_active%}{%endblock%}><a href="{{url_for('your_posts')}}">Your Posts</a></li>
-          <li {%block notifications_active%}{%endblock%}><a href="{{url_for('notifications')}}">Notifications</a></li>
+          <li {%block notifications_active%}{%endblock%}><a href="{{url_for('notifications')}}">Notifications&nbsp;{%if notif_count>0%}<span class="badge">{{notif_count}}</span>{%endif%}</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
           <li {%block about_active%}{%endblock%}><a href="{{url_for('about')}}">About</a></li>
