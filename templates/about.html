@@ -6,17 +6,20 @@
 {%block head%}
 <link rel="stylesheet" href="{{url_for('static',filename="css/social.css")}}" type="text/css">
 <link rel="stylesheet" href="{{url_for('static',filename="css/bootstrap.css")}}" type="text/css">
+<link rel="stylesheet" href="{{url_for('static',filename="css/body.css")}}" type="text/css">
 {%endblock%}
 
 
 {%block body%}
 <div id='top' class="jumbotron text-center" style="background-image: url({{url_for('static',filename='images/cover_top.jpg')}});background-size:cover;height: 100vh;color:white;">
-  <div class="container" >
-    <h1 style="color:white;font-family:tahoma;">Hey there!</h1>
-    <p style="color:#000000;font-family:tahoma;">A lil' something about me.</p>
-    <p style="color:#000000;font-family:tahoma;">I'm Dhruv</p>
-  <p style="color:#000000;font-family:tahoma;">I like building stuff, preferably by hitting keys on a keyboard.</p>
-  <p style="color:white;font-family:tahoma;">You can find me here:</p>
+  <div class="col-md-8 col-xs-10 col-md-offset-2 col-xs-offset-1" style="font-family:tahoma;padding-top:40px;">
+
+    <p style="color:#000000;">I'm Dhruv</p>
+  <p style="color:#000000;">I like building stuff, preferably by hitting keys on a keyboard.</p>
+  <p style="color:white;">You can find me here:</p>
+</div>
+
+  <div class="col-md-10 col-xs-12 col-md-offset-1">
     <ul class="social-networks spin-icon">
       <li><a target="_blank" href="https://github.com/dht93" class="icon-github">GitHub</a></li>
   <li><a target="_blank" href="https://www.linkedin.com/in/dhruvthakur" class="icon-linkedin">LinkedIn</a></li>
@@ -24,10 +27,12 @@
   <li><a target="_blank" href="https://www.instagram.com/dhr.uv/" class="icon-instagram">Instagram</a></li>
   <li><a target="_blank" href="https://www.facebook.com/metalplusclassicrock" class="icon-facebook">Facebook</a></li>
 </ul>
-<p style="color:white;font-family:tahoma;">Contact information:</p>
-<p style="color:white;font-family:tahoma;">Phone: +919882769605</p>
-<p style="color:white;font-family:tahoma;">Email: dhruvt93@gmail.com</p>
+</div>
 
+<div class="col-md-8 col-xs-10 col-md-offset-2 col-xs-offset-1" style="font-family:tahoma;">
+<p style="color:white;">Contact information:</p>
+<p style="color:white;">Phone: +919882769605</p>
+<p style="color:white;">Email: dhruvt93@gmail.com</p>
 </div>
 </div>
 

@@ -9,42 +9,119 @@
 
 {%block body%}
 <br>
-<div class="container" align="center">
-{%for el in data:%}
+{%for el in data%}
+{%if el[1]=='S'%}
+<div class="col-md-10 col-xs-8 col-md-offset-1 col-xs-offset-2">
   <div class="panel panel-default">
     <div class="panel-body">
-      {%if el[1]=='S'%}<span style="float:left;font-size:13px;" class="label label-primary">SELL</span>{%else%}<span style="float:left;font-size:13px;" class="label label-warning">SEEK</span>{%endif%}
-      <b>ITEM: {{el[3]}}</b>
-      <span style="float:right;font-size:13px;" class="badge">#{{el[0]}}</span>
-      <table class="table">
-        <tbody>
-          <tr align="right">
-            <td>Posted By:<br>{{el[2]}}</td>
-            {%if el[1]=='S'%}
-                  {%if el[4]=='0'%}
-                        <td>Selling For<br><b>Free</b></td>
-                        {%else:%}
-                        <td>Selling Price:<br>{{el[4]}}</td>{%endif%}
-                  <td>Used For:<br>{{el[5]}}</td>
-                  {%if not el[6]=='NULL'%}
-                        <td>Additional info:<br>{{el[6]}}</td>
-                        {%endif%}
-            {%else:%}
-                  {%if not el[6]=='NULL'%}
-                        <td>Additional info:<br>{{el[6]}}</td>{%endif%}
-                        {%endif%}
-            <td align="right"><button type="button" class="btn btn-info"><a style="color:white;text-decoration:none;" href="{{url_for('post',tr_id=el[0])}}">Details</a></button>
-          </tr>
-        </tbody>
-      </table>
-      {%if session.admin%}
-      <button type="button" class="btn btn-danger"><a style="color:white;text-decoration:none;" href="{{url_for('admin_remove_post',tr_id=el[0])}}">Remove</a></button>
-      {%endif%}
+  <div class="row">
+    <div class="col-md-1 col-xs-2">
+      <span style="font-size:13px;" class="label label-primary">SELL</span>
     </div>
+    <div class="col-md-10 col-xs-8" align="center">
+      <p><b>ITEM: {{el[3]}}</b></p>
   </div>
+  <div class="col-md-1 col-xs-2">
+    <span style="font-size:13px;" class="badge">#{{el[0]}}</span>
+</div>
+</div>
+{%if not el[6]=='NULL'%}
+<div class="row" align="center" style="padding:5px;">
+<div class="col-md-3 col-xs-12">
+  <p>Posted By:<br>{{el[2]}}</p>
+</div>
+<div class="col-md-3 col-xs-12">
+  <p>Selling Price<br>{%if el[4]=='0'%}Free{%else%}{{el[4]}}{%endif%}</p>
+</div>
+<div class="col-md-2 col-xs-12">
+  <p>Used For<br>{{el[5]}}</p>
+</div>
+<div class="col-md-2 col-xs-12">
+  <p>Additional Info:<br>{{el[6]}}</p>
+</div>
+<div class="col-md-2 col-xs-12" align="right">
+  <button type="button" class="btn btn-info"><a style="color:white;text-decoration:none;" href="{{url_for('post',tr_id=el[0])}}">Details</a></button>
+</div>
+</div>
+{%else%}
+<div class="row" align="center" style="padding:5px;">
+<div class="col-md-4 col-xs-12">
+  <p>Posted By:<br>{{el[2]}}</p>
+</div>
+<div class="col-md-3 col-xs-12">
+  <p>Selling Price<br>{%if el[4]=='0'%}Free{%else%}{{el[4]}}{%endif%}</p>
+</div>
+<div class="col-md-3 col-xs-12">
+  <p>Used For<br>{{el[5]}}</p>
+</div>
+<div class="col-md-2 col-xs-12" align="right">
+  <button type="button" class="btn btn-info"><a style="color:white;text-decoration:none;" href="{{url_for('post',tr_id=el[0])}}">Details</a></button>
+</div>
+</div>
+{%endif%}
+{%if session.admin%}
+<div class="row" align="center">
+  <button type="button" class="btn btn-danger"><a style="color:white;text-decoration:none;" href="{{url_for('admin_remove_post',tr_id=el[0])}}">Remove</a></button>
+</div>
+{%endif%}
+</div>
+</div>
+</div>
+{%else%}
+<div class="col-md-10 col-xs-8 col-md-offset-1 col-xs-offset-2">
+  <div class="panel panel-default">
+    <div class="panel-body">
+  <div class="row">
+    <div class="col-md-1 col-xs-2">
+      <span style="font-size:13px;" class="label label-warning">SEEK</span>
+    </div>
+    <div class="col-md-10 col-xs-8" align="center">
+      <p><b>ITEM: {{el[3]}}</b></p>
+  </div>
+  <div class="col-md-1 col-xs-2">
+    <span style="font-size:13px;" class="badge">#{{el[0]}}</span>
+</div>
+</div>
+{%if not el[6]=='NULL'%}
+<div class="row" align="center" style="padding:5px;">
+<div class="col-md-4 col-xs-12">
+  <p>Posted By:<br>{{el[2]}}</p>
+</div>
+<div class="col-md-4 col-xs-12">
+  <p>Additional info:<br>{{el[6]}}</p>
+</div>
+<div class="col-md-4 col-xs-12" align="right">
+  <button type="button" class="btn btn-info"><a style="color:white;text-decoration:none;" href="{{url_for('post',tr_id=el[0])}}">Details</a></button>
+</div>
+</div>
+{%else:%}
+<div class="row" align="center" style="padding:5px;">
+<div class="col-md-4 col-xs-12">
+  <p>Posted By:<br>{{el[2]}}</p>
+</div>
+<div class="col-md-4 col-xs-12" align="right">
+  <button type="button" class="btn btn-info"><a style="color:white;text-decoration:none;" href="{{url_for('post',tr_id=el[0])}}">Details</a></button>
+</div>
+</div>
+
+{%endif%}
+{%if session.admin%}
+<div class="row" align="center">
+  <button type="button" class="btn btn-danger"><a style="color:white;text-decoration:none;" href="{{url_for('admin_remove_post',tr_id=el[0])}}">Remove</a></button>
+</div>
+{%endif%}
+</div>
+</div>
+</div>
+{%endif%}
+
 
 {%endfor%}
-</div>
+
+
+
+
+
 
 <div class="container" align="center">
 <nav>

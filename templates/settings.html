@@ -7,13 +7,13 @@
 <div class="page-header" align="center">
 <h1>Settings &nbsp;<small>Update to your preferences</small></h1>
 </div>
-<div class="container" align="center" style="width:40%;">
+<div class="col-md-6 col-xs-10 col-md-offset-3 col-xs-offset-1" align="center">
 <form action="" class="form-inline" method="post">
 <p style="display:inline;">Update your email address:</p>
 <input type="text" class="form-control" placeholder = "Current: {{session['email']}}" name="email" value="{{request.form.email}}"></input><br>
 <br>
 <p style="display:inline;">Update your contact number:</p>
-<input type="text" class="form-control" placeholder = "Current: {%if session['contact']=='NULL'%}*zilch*{%else:%}{{session['contact']}}{%endif%}" name="contact" value="{{request.form.contact}}"></input><br>
+<input type="text" class="form-control" placeholder = "Current: {%if session['contact']=='NULL'%}None{%else:%}{{session['contact']}}{%endif%}" name="contact" value="{{request.form.contact}}"></input><br>
 <br>
 <div class="panel panel-default">
 <div class="panel-body">
