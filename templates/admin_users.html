@@ -1,0 +1,17 @@
+{%extends 'header.html'%}
+
+{%block body%}
+<div class="container" align="center">
+  {%for user in data:%}
+  <div class="panel panel-default">
+    <div class="panel-body">
+      {{user[2]}} signed up with:<br>username: {{user[1]}}<br>user_id: {{user[0]}}<br>Email: {{user[3]}}.<br>
+      <button type="button" class="btn btn-danger"><a style="color:white;text-decoration:none;" href="{{url_for('admin_remove_user',user_id=user[0])}}">Remove user</a></button>
+    </div>
+  </div>
+  {%endfor%}
+
+</div>
+
+
+{%endblock%}

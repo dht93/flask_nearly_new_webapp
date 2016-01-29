@@ -37,6 +37,9 @@
           </tr>
         </tbody>
       </table>
+      {%if session.admin%}
+      <button type="button" class="btn btn-danger"><a style="color:white;text-decoration:none;" href="{{url_for('admin_remove_post',tr_id=el[0])}}">Remove</a></button>
+      {%endif%}
     </div>
   </div>
 

@@ -1,0 +1,18 @@
+{%extends 'header.html'%}
+
+{%block body%}
+<div class="container" align="center">
+  <br><br>
+  <form action="" class="form-inline" method="post">
+    <input autofocus="autofocus" required type="text" class="form-control input-lg" placeholder = "name" name="name" value="{{request.form.name}}"><br>
+    <input required type="password" class="form-control input-lg" placeholder = "password" name="password" value="{{request.form.password}}" ><br>
+    <input required type="password" class="form-control input-lg" placeholder = "sequence" name="sequence" value="{{request.form.sequence}}"><br>
+    <br><input class="btn btn-lg btn-primary" type="submit" value="Enter">
+  </form>
+  {%if error%}<br>
+  <div class="alert alert-danger" role="alert">
+    {{error}}
+  </div>
+{%endif%}
+
+{%endblock%}

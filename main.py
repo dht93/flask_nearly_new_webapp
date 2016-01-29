@@ -129,16 +129,9 @@ def board(num):
     else:
         no_of_pages=(count/10)+1
     current=num
-    if count>10:
-        if num==1:
-            start=count-10
-        else:
-            start=count-num*10
-        end=start+10
-    else:
-        start=0
-        end=10
-    cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id FROM posts,users WHERE posts.user_id=users.user_id AND tr_id>? AND tr_id<=? ORDER BY tr_id DESC',(start,end))
+    start=(num-1)*10
+    end=start+10
+    cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id FROM posts,users WHERE posts.user_id=users.user_id ORDER BY tr_id DESC LIMIT ?,?',(start,end))
     data=cur.fetchall()
     cur.close()
     conn.close()
@@ -430,6 +423,69 @@ def page_not_found(e):
 def page_not_found(e):
 
     return render_template('500.html')
+
+@app.route('/admin/',methods=['GET','POST'])
+@login_required
+def admin():
+    if request.method=='POST':
+        name=request.form['name']
+        password=request.form['password']
+        sequence=request.form['sequence']
+        if name=='XXXXXX' and password=='XXXXXX' and sequence=='XXXXXX':
+            session['admin']=True
+            return redirect(url_for('board',num=1))
+        else:
+            error="Fuck off!"
+            return render_template('admin.html',notif_count=0,error=error)
+    else:
+        return render_template('admin.html',notif_count=0)
+
+
+def admin_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'admin' in session:
+            return f(*args,**kwargs)
+        else:
+            return redirect (url_for('index'))
+    return wrap
+
+@app.route('/admin_remove_post/<int:tr_id>/')
+@login_required
+@admin_required
+def admin_remove_post(tr_id):
+    cur,conn=connection()
+    cur.execute('DELETE FROM posts WHERE tr_id=?',(tr_id,))
+    cur.execute('DELETE FROM requests WHERE tr_id=?',(tr_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return redirect(url_for('board',num=1))
+
+@app.route('/admin/users/')
+@login_required
+@admin_required
+def admin_users():
+    cur,conn=connection()
+    cur.execute('SELECT user_id,user_name,name,email FROM users ORDER BY user_id DESC')
+    data=cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('admin_users.html',data=data,notif_count=0)
+
+@app.route('/admin/remove_user/<int:user_id>/')
+@login_required
+@admin_required
+def admin_remove_user(user_id):
+    cur,conn=connection()
+    cur.execute('DELETE FROM posts WHERE user_id=?',(user_id,))
+    cur.execute('DELETE FROM requests WHERE requestor=?',(user_id,))
+    cur.execute('DELETE FROM requests WHERE recipient=?',(user_id,))
+    cur.execute('DELETE FROM users WHERE user_id=?',(user_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return redirect(url_for('admin_users'))
 
 
 if __name__=="__main__":
