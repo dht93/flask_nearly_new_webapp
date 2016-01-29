@@ -8,7 +8,7 @@
 {%block body%}
 {%if not session.logged_in:%}
 
-  <div id='top' class="jumbotron text-center" style="background-image: url({{url_for('static',filename='images/cover_top.jpg')}});background-size:cover;height:100vh;color:white;">
+  <div id='top' class="jumbotron text-center" style="background-image: url({{url_for('static',filename='images/cover_top.jpg')}});background-size:cover;height:100vh;color:white;margin-bottom:0;">
 
     <div class="col-md-6 col-xs-12 col-md-offset-3" style="padding-top:20px;">
       <div class="row">
@@ -22,7 +22,7 @@
     </div>
   </div>
   <div class="row" style="padding-top:50px;">
-    <div class="col-md-4 col-xs-4 col-md-offset-4 col-xs-offset-4">
+    <div class="col-md-4 col-xs-6 col-md-offset-4 col-xs-offset-3">
       <a style="color:white;font-size:18px;text-decoration:none;" class="smoothScroll" href="#bottom">Learn more</a>
     </div>
   </div>
@@ -35,7 +35,7 @@
 </div>
 
 
-<div id ="bottom" class="jumbotron text-center" style="background-image: url({{url_for('static',filename='images/cover.jpg')}});background-size:cover;height:100vh;color:white;">
+<div id ="bottom" class="jumbotron text-center" style="background-image: url({{url_for('static',filename='images/cover.jpg')}});background-size:cover;height:100vh;color:white;margin-bottom:0;">
 <div class="col-md-8 col-xs-10 col-md-offset-2 col-xs-offset-1">
 <h1>This is nearly-new</h1>
 <div style="color:black;">
@@ -54,7 +54,7 @@
 
 {%else:%}
 
-<div class="jumbotron text-center" style="background-image: url({{url_for('static',filename='images/cover.jpg')}});background-size:cover;height:100vh;color:white;">
+<div class="jumbotron text-center" style="background-image: url({{url_for('static',filename='images/cover.jpg')}});background-size:cover;height:100vh;color:white;margin-bottom:0;">
 <div class="col-md-8 col-xs-12 col-md-offset-2" style=>
 <h1>This is nearly-new</h1>
 <div style="color:black;">

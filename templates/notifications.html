@@ -14,7 +14,7 @@ $(document).ready(function(){
 });
 </script>
 
-<div class="col-md-10 col-xs-10 col-md-offset-1 col-xs-offset-1" align="center">
+<div class="col-md-10 col-xs-12 col-md-offset-1" align="center">
   <h2 align="center">Notifications</h2>
   <ul class="nav nav-tabs">
     <li class="active"><a href="#new_notifs">New notifications {%if (recipient_new_notifs|length + requestor_new_notifs|length)>0%}<span class="badge">{{(recipient_new_notifs|length + requestor_new_notifs|length)}}</span>{%endif%}</a></li>
@@ -111,5 +111,6 @@ $(document).ready(function(){
 
       {%endfor%}
   </div>
-
+</div>
+</div>
 {%endblock%}
