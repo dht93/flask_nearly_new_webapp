@@ -17,7 +17,7 @@
       		<br>
       		<form action=""  method="post">
             <input required type="text" class="form-control" placeholder = "You're seeking what?" name="content" value="{{request.form.content}}" onclick="inp1in();"onblur="inp1out();"><p id="inp1" style="display:none;"></p><br>
-      			<input type="text" class="form-control" placeholder = "Any additional info?" name="add_info" value="{{request.form.add_info}}" onclick="inp2in();"onblur="inp2out();"><p id="inp2" style="display:none;"></p><br>
+      			<input type="text" class="form-control" placeholder = "Any additional info? You can leave this blank." name="add_info" value="{{request.form.add_info}}" onclick="inp2in();"onblur="inp2out();"><p id="inp2" style="display:none;"></p><br>
             <input class="btn btn-default" type="submit" value="Post ad" style="margin-left:6%;">
       		</form>
           {%if error%}

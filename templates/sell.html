@@ -18,7 +18,7 @@
   			<input required type="text" class="form-control" placeholder = "You're selling what?" name="content" value="{{request.form.content}}" onfocus="inp1in();"onblur="inp1out();"><p id="inp1" style="display:none;"></p><br>
         <input required type="text" class="form-control" placeholder = "You're expecting to sell at?" name="selling_p" value="{{request.form.selling_p}}" onfocus="inp2in();"onblur="inp2out();"><p id="inp2" style="display:none;"></p><br>
         <input required type="text" class="form-control" placeholder = "Used for?" name="used_for" value="{{request.form.used_for}}" onfocus="inp3in();"onblur="inp3out();"><p id="inp3" style="display:none;"></p><br>
-  			<input type="text" class="form-control" placeholder = "Any additional info?" name="add_info" value="{{request.form.add_info}}" onfocus="inp4in();"onblur="inp4out();"><p id="inp4" style="display:none;"></p><br>
+  			<input type="text" class="form-control" placeholder = "Any additional info? You can leave this blank." name="add_info" value="{{request.form.add_info}}" onfocus="inp4in();"onblur="inp4out();"><p id="inp4" style="display:none;"></p><br>
         <input class="btn btn-default" type="submit" value="Post ad" style="margin-left:6%;">
   		</form>
       {%if error%}
