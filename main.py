@@ -165,6 +165,7 @@ def board(num):
         cur.close()
         conn.close()
         notif_count=get_notifs()
+        print data[1][2],session['user_name']
         return render_template('board.html',data=data,no_of_pages=no_of_pages, current=current, posts_on_page=len(data),notif_count=notif_count)
 
 @app.route('/sell/',methods=['GET','POST'])
