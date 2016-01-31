@@ -2,7 +2,7 @@ from flask import Flask, render_template,request, url_for, redirect, session, fl
 import sqlite3
 from functools import wraps
 from passlib.hash import sha256_crypt
-import gc
+
 
 app=Flask(__name__)
 
@@ -25,15 +25,19 @@ def get_notifs():
     cur,conn=connection()
     cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT, content TEXT)')
     conn.commit()
+    cur.execute('CREATE TABLE IF NOT EXISTS help_out (help_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,tr_id NUMBER, helper_id NUMBER, helper_name TEXT, helped_id NUMBER, content TEXT, data_sent TEXT, ack TEXT)')
+    conn.commit()
     #recipient_new_notifs
     cur.execute('SELECT COUNT (*) FROM requests WHERE recipient=? AND response=? ORDER BY request_id DESC',(session['user_id'],'NY'))
     rec=cur.fetchone()[0]
     #requestor_new_notifs
     cur.execute('SELECT COUNT (*) FROM requests WHERE requestor=? AND ack=? ORDER BY request_id DESC',(session['user_id'],'NS'))
     req=cur.fetchone()[0]
+    cur.execute('SELECT COUNT(*) FROM help_out where helped_id=? AND ack=?',(session['user_id'],'NY'))
+    helped_new=cur.fetchone()[0]
     cur.close()
     conn.close()
-    notif_count=rec+req
+    notif_count=rec+req+helped_new
     return notif_count
 
 @app.route('/')
@@ -116,27 +120,52 @@ def login_page():
         return render_template('login.html')
 
 
-@app.route('/board/<int:num>/')
+@app.route('/board/<int:num>/',methods=['GET','POST'])
 @login_required
 def board(num):
-    cur,conn=connection()
-    cur.execute('CREATE TABLE IF NOT EXISTS posts (tr_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT,user_id TEXT,content TEXT,selling_p TEXT,used_for TEXT, add_info TEXT)')
-    conn.commit()
-    cur.execute('SELECT COUNT (*) FROM posts')
-    count=cur.fetchone()[0]
-    if count<=10:
-        no_of_pages=1
+    if request.method=='POST':
+        cur,conn=connection()
+        cur.execute('CREATE TABLE IF NOT EXISTS help_out (help_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,tr_id NUMBER, helper_id NUMBER, helper_name TEXT, helped_id NUMBER, content TEXT, data_sent TEXT, ack TEXT)')
+        conn.commit()
+        resp=request.form['num_s']
+        number=request.form.get('number',-1)
+        if not number==-1:
+            cur.execute('UPDATE USERS SET contact=? WHERE user_id=?',('number',session['user_id']))
+            conn.commit()
+            session['contact']=number
+        els=resp.split(',')
+        if els[0]=='n':
+            data_sent=session['email']
+        else:
+            data_sent=session['contact']+','+session['email']
+
+        tr_id=els[1]
+        helped_id=els[2]
+        content=els[4]
+        ack='NY'
+        cur.execute('INSERT INTO help_out (tr_id, helper_id, helper_name,helped_id, content, data_sent, ack) VALUES(?,?,?,?,?,?,?)',(tr_id, session['user_id'], session['user_name'],helped_id, content, data_sent, ack))
+        conn.commit()
+        notif_count=get_notifs()
+        return redirect(url_for('board',num=num))
     else:
-        no_of_pages=(count/10)+1
-    current=num
-    start=(num-1)*10
-    end=start+10
-    cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id FROM posts,users WHERE posts.user_id=users.user_id ORDER BY tr_id DESC LIMIT ?,?',(start,end))
-    data=cur.fetchall()
-    cur.close()
-    conn.close()
-    notif_count=get_notifs()
-    return render_template('board.html',data=data,no_of_pages=no_of_pages, current=current, posts_on_page=len(data),notif_count=notif_count)
+        cur,conn=connection()
+        cur.execute('CREATE TABLE IF NOT EXISTS posts (tr_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT,user_id TEXT,content TEXT,selling_p TEXT,used_for TEXT, add_info TEXT)')
+        conn.commit()
+        cur.execute('SELECT COUNT (*) FROM posts')
+        count=cur.fetchone()[0]
+        if count<=10:
+            no_of_pages=1
+        else:
+            no_of_pages=(count/10)+1
+        current=num
+        start=(num-1)*10
+        end=start+10
+        cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id FROM posts,users WHERE posts.user_id=users.user_id ORDER BY tr_id DESC LIMIT ?,?',(start,end))
+        data=cur.fetchall()
+        cur.close()
+        conn.close()
+        notif_count=get_notifs()
+        return render_template('board.html',data=data,no_of_pages=no_of_pages, current=current, posts_on_page=len(data),notif_count=notif_count)
 
 @app.route('/sell/',methods=['GET','POST'])
 @login_required
@@ -354,6 +383,8 @@ def notifications():
     cur,conn=connection()
     cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT, content TEXT)')
     conn.commit()
+    cur.execute('CREATE TABLE IF NOT EXISTS help_out (help_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,tr_id NUMBER, helper_id NUMBER, helper_name TEXT, helped_id NUMBER, content TEXT, data_sent TEXT, ack TEXT)')
+    conn.commit()
     #recipient_new_notifs
     cur.execute('SELECT * FROM requests WHERE recipient=? AND response=? ORDER BY request_id DESC',(session['user_id'],'NY'))
     recipient_new_notifs=cur.fetchall()
@@ -366,10 +397,14 @@ def notifications():
     #requestor_old_notifs
     cur.execute('SELECT * FROM requests WHERE requestor=? AND ack=? ORDER BY request_id DESC',(session['user_id'],'S'))
     requestor_old_notifs=cur.fetchall()
+    cur.execute('SELECT help_id,helper_name, data_sent,content FROM help_out where helped_id=? AND ack=? ORDER BY help_id DESC',(session['user_id'],'NY'))
+    helped_new=cur.fetchall()
+    cur.execute('SELECT help_id,helper_name, data_sent,content FROM help_out where helped_id=? AND ack=? ORDER BY help_id DESC',(session['user_id'],'S'))
+    helped_old=cur.fetchall()
     cur.close()
     conn.close()
     notif_count=get_notifs()
-    return render_template('notifications.html',recipient_new_notifs=recipient_new_notifs,recipient_old_notifs=recipient_old_notifs,requestor_new_notifs=requestor_new_notifs,requestor_old_notifs=requestor_old_notifs,notif_count=notif_count)
+    return render_template('notifications.html',recipient_new_notifs=recipient_new_notifs,recipient_old_notifs=recipient_old_notifs,requestor_new_notifs=requestor_new_notifs,requestor_old_notifs=requestor_old_notifs,notif_count=notif_count,helped_new=helped_new,helped_old=helped_old)
 
 @app.route('/request/accept/<int:request_id>/')
 @login_required
@@ -401,6 +436,15 @@ def ack_notif(request_id):
     conn.close()
     return redirect(url_for('notifications'))
 
+@app.route('/ack_help/<int:help_id>/')
+@login_required
+def ack_help(help_id):
+    cur,conn=connection()
+    cur.execute('UPDATE help_out SET ack=? WHERE help_id=?',('S',help_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return redirect(url_for('notifications'))
 @app.route('/logout/')
 @login_required
 def logout():

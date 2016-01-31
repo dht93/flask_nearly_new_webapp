@@ -23,9 +23,28 @@ $(document).ready(function(){
     <div class="tab-content">
       <div id="new_notifs" class="tab-pane fade in active">
         <!--recipient stuff-->
-        {%if (recipient_new_notifs|length + requestor_new_notifs|length)==0:%}
+        {%if (recipient_new_notifs|length + requestor_new_notifs|length+helped_new|length)==0:%}
         <br><br><p align="center">Nothing new here</p>
         {%else:%}
+        {%for el in helped_new%}
+        <div class="panel panel-success">
+          <div class="panel-heading">Help on: {{el[3]}}</div>
+          <div class="panel-body" align="center">
+            <p>{{el[1]}} is offering to help you since you put up a seek post for {{el[3]}}. Contact information:</p>
+            {%if el[2].split(',')|length>1%}
+            <p>Email: {{el[2].split(',')[0]}}</p>
+              <p>Contact number: {{el[2].split(',')[1]}}</p>
+              {%else%}
+              <p>Email: {{el[2]}}</p>
+              {%endif%}
+            <a href="{{url_for('ack_help',help_id=el[0])}}" class="btn btn-success btn-sm" role="button">Remove notification</a>
+        </div>
+      </div>
+
+
+        {%endfor%}
+
+
         {%for el in recipient_new_notifs%}
         <div class="panel panel-success">
           <div class="panel-heading">Request: {{el[9]}}</div>
@@ -37,7 +56,7 @@ $(document).ready(function(){
           </div>
         </div>
         {%endfor%}
-        <hr>
+
         <!--requestor stuff-->
         {%for el in requestor_new_notifs%}
         {%if el[7]=='Y'%}
@@ -64,6 +83,24 @@ $(document).ready(function(){
       </div>
 
       <div id="old_notifs" class="tab-pane fade">
+        {%for el in helped_old%}
+        <div class="panel panel-success">
+          <div class="panel-heading">Help on: {{el[3]}}</div>
+          <div class="panel-body" align="center">
+            <p>{{el[1]}} offered to help you since you put up a seek post for {{el[3]}}. Contact information:<br></p>
+            {%if el[2].split(',')|length>1%}
+            <p>Email: {{el[2].split(',')[0]}}</p><br>
+              <p>Contact number: {{el[2].split(',')[1]}}</p>
+              {%else%}
+              <p>Email: {{el[2]}}</p>
+              {%endif%}
+        </div>
+      </div>
+
+
+
+        {%endfor%}
+
         {%for el in recipient_old_notifs%}
         {%if el[7]=='Y'%}
         <div class="panel panel-success">
@@ -85,7 +122,7 @@ $(document).ready(function(){
       </div>
       {%endif%}
       {%endfor%}
-<hr>
+
       {%for el in requestor_old_notifs%}
       {%if el[7]=='Y'%}
       <div class="panel panel-success">
@@ -110,7 +147,8 @@ $(document).ready(function(){
 
 
       {%endfor%}
+    </div>
   </div>
 </div>
-</div>
+
 {%endblock%}
