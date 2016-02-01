@@ -89,7 +89,7 @@ $(document).ready(function(){
           <div class="panel-body" align="center">
             <p>{{el[1]}} offered to help you since you put up a seek post for {{el[3]}}. Contact information:<br></p>
             {%if el[2].split(',')|length>1%}
-            <p>Email: {{el[2].split(',')[0]}}</p><br>
+            <p>Email: {{el[2].split(',')[0]}}</p>
               <p>Contact number: {{el[2].split(',')[1]}}</p>
               {%else%}
               <p>Email: {{el[2]}}</p>

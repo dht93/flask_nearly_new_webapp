@@ -17,9 +17,15 @@
   <div class="panel panel-default">
     <div class="panel-body">
   <div class="row">
+    {%if el[7]=='y'%}
+    <div class="col-md-1 col-xs-2">
+      <span style="font-size:13px;" class="label label-success">CLOSED</span>
+    </div>
+    {%else%}
     <div class="col-md-1 col-xs-2">
       <span style="font-size:13px;" class="label label-primary">SELL</span>
     </div>
+    {%endif%}
     <div class="col-md-10 col-xs-8" align="center">
       <p>ITEM: {{el[3]}}</p>
   </div>
@@ -52,9 +58,22 @@
 
 </div>
 {%endif%}
+{%if el[7]=='n'%}
 <div class="row" align="center">
+  <div class="col-md-6 col-xs-6" align="right">
+  <button type="button" class="btn btn-warning"><a style="color:white;text-decoration:none;" href="{{url_for('close_post',tr_id=el[0])}}">Close Post</a></button>
+  </div>
+<div class="col-md-6 col-xs-6" align="left">
 <button type="button" class="btn btn-danger"><a style="color:white;text-decoration:none;" href="{{url_for('remove_post',tr_id=el[0])}}">Remove</a></button>
 </div>
+</div>
+{%else%}
+<div class="row" align="center">
+  <div class="col-md-12 col-xs-12" align="center">
+<button type="button" class="btn btn-danger"><a style="color:white;text-decoration:none;" href="{{url_for('remove_post',tr_id=el[0])}}">Remove</a></button>
+  </div>
+</div>
+{%endif%}
 </div>
 </div>
 </div>
@@ -63,9 +82,15 @@
   <div class="panel panel-default">
     <div class="panel-body">
   <div class="row">
+    {%if el[7]=='y'%}
+    <div class="col-md-1 col-xs-2">
+      <span style="font-size:13px;" class="label label-success">CLOSED</span>
+    </div>
+    {%else%}
     <div class="col-md-1 col-xs-2">
       <span style="font-size:13px;" class="label label-warning">SEEK</span>
     </div>
+    {%endif%}
     <div class="col-md-10 col-xs-8" align="center">
       <p>ITEM: {{el[3]}}</p>
   </div>
@@ -83,9 +108,24 @@
 </div>
 
 {%endif%}
+{%if el[7]=='n'%}
 <div class="row" align="center">
-<button type="button" class="btn btn-danger"><a style="color:white;text-decoration:none;" href="{{url_for('remove_post',tr_id=el[0])}}">Remove</a></button>
+  <div class="col-md-6 col-xs-6" align="right">
+  <button type="button" class="btn btn-warning"><a style="color:white;text-decoration:none;" href="{{url_for('close_post',tr_id=el[0])}}">Close Post</a></button>
+  </div>
+  <div class="col-md-6 col-xs-6" align="left">
+  <button type="button" class="btn btn-danger"><a style="color:white;text-decoration:none;" href="{{url_for('remove_post',tr_id=el[0])}}">Remove</a></button>
+  </div>
 </div>
+{%else%}
+<div class="row" align="center">
+  <div class="col-md-12 col-xs-12" align="center">
+  <button type="button" class="btn btn-danger"><a style="color:white;text-decoration:none;" href="{{url_for('remove_post',tr_id=el[0])}}">Remove</a></button>
+  </div>
+</div>
+
+{%endif%}
+
 </div>
 </div>
 </div>

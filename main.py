@@ -128,6 +128,7 @@ def board(num):
         cur.execute('CREATE TABLE IF NOT EXISTS help_out (help_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,tr_id NUMBER, helper_id NUMBER, helper_name TEXT, helped_id NUMBER, content TEXT, data_sent TEXT, ack TEXT)')
         conn.commit()
         resp=request.form['num_s']
+        print resp
         number=request.form.get('number',-1)
         if not number==-1:
             cur.execute('UPDATE USERS SET contact=? WHERE user_id=?',('number',session['user_id']))
@@ -149,7 +150,7 @@ def board(num):
         return redirect(url_for('board',num=num))
     else:
         cur,conn=connection()
-        cur.execute('CREATE TABLE IF NOT EXISTS posts (tr_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT,user_id TEXT,content TEXT,selling_p TEXT,used_for TEXT, add_info TEXT)')
+        cur.execute('CREATE TABLE IF NOT EXISTS posts (tr_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT,user_id TEXT,content TEXT,selling_p TEXT,used_for TEXT, add_info TEXT, closed TEXT)')
         conn.commit()
         cur.execute('SELECT COUNT (*) FROM posts')
         count=cur.fetchone()[0]
@@ -160,7 +161,7 @@ def board(num):
         current=num
         start=(num-1)*10
         end=start+10
-        cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id FROM posts,users WHERE posts.user_id=users.user_id ORDER BY tr_id DESC LIMIT ?,?',(start,end))
+        cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id,closed FROM posts,users WHERE posts.user_id=users.user_id ORDER BY tr_id DESC LIMIT ?,?',(start,end))
         data=cur.fetchall()
         cur.close()
         conn.close()
@@ -180,7 +181,7 @@ def sell():
         add_info=request.form['add_info']
         if len(add_info)==0:
             add_info='NULL'
-        cur.execute('INSERT INTO posts (type, user_id, content, selling_p, used_for, add_info) VALUES (?,?,?,?,?,?)',('S',session['user_id'],content,selling_p,used_for,add_info))
+        cur.execute('INSERT INTO posts (type, user_id, content, selling_p, used_for, add_info, closed) VALUES (?,?,?,?,?,?,?)',('S',session['user_id'],content,selling_p,used_for,add_info,'n'))
         conn.commit()
         cur.close()
         conn.close()
@@ -204,7 +205,7 @@ def seek():
         add_info=request.form['add_info']
         if len(add_info)==0:
             add_info='NULL'
-        cur.execute('INSERT INTO posts (type, user_id, content, selling_p, used_for, add_info) VALUES (?,?,?,?,?,?)',('R',session['user_id'],content,'NULL','NULL',add_info))
+        cur.execute('INSERT INTO posts (type, user_id, content, selling_p, used_for, add_info, closed) VALUES (?,?,?,?,?,?,?)',('R',session['user_id'],content,'NULL','NULL',add_info,'n'))
         conn.commit()
         cur.close()
         conn.close()
@@ -323,7 +324,7 @@ def your_posts():
 @app.route('/post/<int:tr_id>/')
 def post(tr_id):
     cur,conn=connection()
-    cur.execute('SELECT tr_id, type, posts.user_id, users.name, users.contact, users.email, users.settings, content, selling_p, used_for, add_info FROM posts,users WHERE users.user_id=posts.user_id AND tr_id=?',(tr_id,))
+    cur.execute('SELECT tr_id, type, posts.user_id, users.name, users.contact, users.email, users.settings, content, selling_p, used_for, add_info,closed FROM posts,users WHERE users.user_id=posts.user_id AND tr_id=?',(tr_id,))
     data=cur.fetchall()[0]
     cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type_r TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT, content TEXT)')
     conn.commit()
@@ -373,6 +374,16 @@ def req(tr_id,type_r,recipient,recipient_name,content):
 def remove_post(tr_id):
     cur,conn=connection()
     cur.execute('DELETE FROM posts WHERE tr_id=?',(tr_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return redirect(url_for('your_posts'))
+
+@app.route('/close/<int:tr_id>/')
+@login_required
+def close_post(tr_id):
+    cur,conn=connection()
+    cur.execute('UPDATE posts SET closed=? WHERE tr_id=?',('y',tr_id))
     conn.commit()
     cur.close()
     conn.close()
