@@ -46,7 +46,11 @@
   <p>Additional Info:<br>{{el[6]}}</p>
 </div>
 <div class="col-md-2 col-xs-12" align="right">
-  <button type="button" class="btn btn-info" {%if el[8]=='y'%}disabled="disabled"{%endif%}><a style="color:white;text-decoration:none;" href="{{url_for('post',tr_id=el[0])}}" >Details</a></button>
+  {%if el[8]=='y'%}
+  <button type="button" class="btn btn-info" disabled="disabled">Details</button>
+  {%else%}
+  <a href="{{url_for('post',tr_id=el[0])}}" class="btn btn-info" role="button">Details</a>
+  {%endif%}
 </div>
 </div>
 {%else%}
@@ -63,7 +67,11 @@
 <div class="col-md-2 col-xs-12">
 </div>
 <div class="col-md-2 col-xs-12" align="right">
-  <button type="button" class="btn btn-info" {%if el[8]=='y'%}disabled="disabled"{%endif%}><a style="color:white;text-decoration:none;" href="{{url_for('post',tr_id=el[0])}}" >Details</a></button>
+  {%if el[8]=='y'%}
+  <button type="button" class="btn btn-info" disabled="disabled">Details</button>
+  {%else%}
+  <a href="{{url_for('post',tr_id=el[0])}}" class="btn btn-info" role="button">Details</a>
+  {%endif%}
 </div>
 </div>
 {%endif%}
@@ -108,7 +116,11 @@
   <div class="col-md-3 col-xs-12">
   </div>
   <div class="col-md-3 col-xs-12" align="right">
-    <button type="button" class="btn btn-info" {%if el[8]=='y'%}disabled="disabled"{%endif%}><a style="color:white;text-decoration:none;" href="{{url_for('post',tr_id=el[0])}}" >Details</a></button>
+    {%if el[8]=='y'%}
+    <button type="button" class="btn btn-info" disabled="disabled">Details</button>
+    {%else%}
+    <a href="{{url_for('post',tr_id=el[0])}}" class="btn btn-info" role="button">Details</a>
+    {%endif%}
   </div>
   {%else%}
 <div class="col-md-3 col-xs-12">
@@ -145,7 +157,11 @@
   <button type="button" class="btn btn-success" data-toggle="modal" data-target="#{{data.index(el)}}" {%if el[8]=='y'%}disabled="disabled"{%endif%}>Help out</button>
 </div>
 <div class="col-md-3 col-xs-12" align="right">
-  <button type="button" class="btn btn-info" {%if el[8]=='y'%}disabled="disabled"{%endif%}><a style="color:white;text-decoration:none;" href="{{url_for('post',tr_id=el[0])}}">Details</a></button>
+  {%if el[8]=='y'%}
+  <button type="button" class="btn btn-info" disabled="disabled">Details</button>
+  {%else%}
+  <a href="{{url_for('post',tr_id=el[0])}}" class="btn btn-info" role="button">Details</a>
+  {%endif%}
 </div>
 {%endif%}
 
@@ -161,7 +177,11 @@
   <div class="col-md-3 col-xs-12">
   </div>
   <div class="col-md-3 col-xs-12" align="right">
-    <button type="button" class="btn btn-info" {%if el[8]=='y'%}disabled="disabled"{%endif%}><a style="color:white;text-decoration:none;" href="{{url_for('post',tr_id=el[0])}}" >Details</a></button>
+    {%if el[8]=='y'%}
+    <button type="button" class="btn btn-info" disabled="disabled">Details</button>
+    {%else%}
+    <a href="{{url_for('post',tr_id=el[0])}}" class="btn btn-info" role="button">Details</a>
+    {%endif%}
   </div>
 {%else%}
 <div class="col-md-3 col-xs-12">
@@ -197,7 +217,11 @@
   <button type="button" class="btn btn-success" data-toggle="modal" data-target="#{{data.index(el)+20}}" {%if el[8]=='y'%}disabled="disabled"{%endif%}>Help out</button>
 </div>
 <div class="col-md-3 col-xs-12" align="right">
-  <button type="button" class="btn btn-info" {%if el[8]=='y'%}disabled="disabled"{%endif%}><a style="color:white;text-decoration:none;" href="{{url_for('post',tr_id=el[0])}}" >Details</a></button>
+  {%if el[8]=='y'%}
+  <button type="button" class="btn btn-info" disabled="disabled">Details</button>
+  {%else%}
+  <a href="{{url_for('post',tr_id=el[0])}}" class="btn btn-info" role="button">Details</a>
+  {%endif%}
 </div>
 {%endif%}
 </div>

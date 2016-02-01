@@ -138,7 +138,7 @@ def board(num):
         if els[0]=='n':
             data_sent=session['email']
         else:
-            data_sent=session['contact']+','+session['email']
+            data_sent=session['email']+','+session['contact']
 
         tr_id=els[1]
         helped_id=els[2]
