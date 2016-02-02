@@ -1,9 +1,9 @@
 {%extends 'header.html'%}
 
 {%block body%}
-{%if not response==0%}
+{%if data|length==0%}
 <div class="col-md-10 col-xs-10 col-md-offset-1 col-xs-offset-1" style="padding-top:30px;" align="center">
-  <h3>{{response}}</h3>
+  <h3>No results for your query</h3>
 </div>
 {%else%}
 <br>

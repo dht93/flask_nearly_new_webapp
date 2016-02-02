@@ -181,26 +181,14 @@ def search():
         if len(word)>3:
             keywords.append(word)
     tr_ids=[]
+    data=[]
     for keyword in keywords:
-        cur.execute('SELECT tr_id FROM search WHERE keyword=?',(keyword,))
-        r=cur.fetchall()
-        if len(r)>0:
-            resp=[e[0] for e in r]
-            tr_ids.extend(resp)
-    tr_ids=tuple(set(tr_ids))[::-1]
-    placeholder= '?'
-    placeholders= ', '.join(placeholder for unused in tr_ids)
-    q= 'SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id,closed FROM posts,users WHERE posts.user_id=users.user_id AND tr_id IN (%s) AND closed=? ORDER BY tr_id DESC' % placeholders
-    t=tr_ids+('n',)
-    cur.execute(q, t)
-    data=cur.fetchall()
-    response=0
-    if len(data)==0:
-        response="No results for " +query+'.'
+        cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id,closed FROM posts,users WHERE posts.user_id=users.user_id AND content LIKE ? AND closed=? ORDER BY tr_id DESC',('%'+keyword+'%','n'))
+        data.extend(cur.fetchall())
     cur.close()
     conn.close()
     notif_count=get_notifs()
-    return render_template('search.html',data=data,response=response,notif_count=notif_count)
+    return render_template('search.html',data=data,notif_count=notif_count)
 
 
 
@@ -219,16 +207,6 @@ def sell():
             add_info='NULL'
         cur.execute('INSERT INTO posts (type, user_id, content, selling_p, used_for, add_info, closed) VALUES (?,?,?,?,?,?,?)',('S',session['user_id'],content,selling_p,used_for,add_info,'n'))
         conn.commit()
-        cont=content.replace(',',' ').replace('.',' ').replace('-',' ').replace('(',' ').replace(')',' ').lower()
-        print cont
-        cont=cont.split(' ')
-        for el in cont:
-            if len(el)>3:
-                print el
-                cur.execute('SELECT tr_id FROM posts WHERE user_id=? AND content=? AND type=?',(session['user_id'],content,'S'))
-                tr_id=cur.fetchone()[0]
-                cur.execute('INSERT INTO search VALUES (?,?)',(el,tr_id))
-                conn.commit()
         cur.close()
         conn.close()
         return redirect(url_for('board',num=1))
@@ -253,16 +231,6 @@ def seek():
             add_info='NULL'
         cur.execute('INSERT INTO posts (type, user_id, content, selling_p, used_for, add_info, closed) VALUES (?,?,?,?,?,?,?)',('R',session['user_id'],content,'NULL','NULL',add_info,'n'))
         conn.commit()
-        cont=content.replace(',',' ').replace('.',' ').replace('-',' ').replace('(',' ').replace(')',' ').lower()
-        print cont
-        cont=cont.split(' ')
-        for el in cont:
-            if len(el)>3:
-                print el
-                cur.execute('SELECT tr_id FROM posts WHERE user_id=? AND content=? AND type=?',(session['user_id'],content,'R'))
-                tr_id=cur.fetchone()[0]
-                cur.execute('INSERT INTO search VALUES (?,?)',(el,tr_id))
-                conn.commit()
         cur.close()
         conn.close()
         return redirect(url_for('board',num=1))
