@@ -1,0 +1,242 @@
+{%extends 'header.html'%}
+
+{%block body%}
+{%if not response==0%}
+<div class="col-md-10 col-xs-10 col-md-offset-1 col-xs-offset-1" style="padding-top:30px;" align="center">
+  <h3>{{response}}</h3>
+</div>
+{%else%}
+<br>
+{%for el in data%}
+{%if el[1]=='S'%}
+<div class="col-md-10 col-xs-10 col-md-offset-1 col-xs-offset-1">
+  <div class="panel panel-default">
+    <div class="panel-body">
+  <div class="row">
+    {%if el[8]=='y'%}
+    <div class="col-md-1 col-xs-2">
+      <span style="font-size:13px;" class="label label-success">CLOSED</span>
+    </div>
+    {%else%}
+    <div class="col-md-1 col-xs-2">
+      <span style="font-size:13px;" class="label label-primary">SELL</span>
+    </div>
+    {%endif%}
+    <div class="col-md-10 col-xs-8" align="center">
+      <p><b>ITEM: {{el[3]}}</b></p>
+  </div>
+  <div class="col-md-1 col-xs-2">
+    <span style="font-size:13px;" class="badge">#{{el[0]}}</span>
+</div>
+</div>
+{%if not el[6]=='NULL'%}
+<div class="row" align="center" style="padding:5px;">
+<div class="col-md-3 col-xs-12">
+  <p>Posted By:<br>{{el[2]}}</p>
+</div>
+<div class="col-md-3 col-xs-12">
+  <p>Selling Price<br>{%if el[4]=='0'%}Free{%else%}{{el[4]}}{%endif%}</p>
+</div>
+<div class="col-md-2 col-xs-12">
+  <p>Used For<br>{{el[5]}}</p>
+</div>
+<div class="col-md-2 col-xs-12">
+  <p>Additional Info:<br>{{el[6]}}</p>
+</div>
+<div class="col-md-2 col-xs-12" align="right">
+  {%if el[8]=='y'%}
+  <button type="button" class="btn btn-info" disabled="disabled">Details</button>
+  {%else%}
+  <a href="{{url_for('post',tr_id=el[0])}}" class="btn btn-info" role="button">Details</a>
+  {%endif%}
+</div>
+</div>
+{%else%}
+<div class="row" align="center" style="padding:5px;">
+<div class="col-md-3 col-xs-12">
+  <p>Posted By:<br>{{el[2]}}</p>
+</div>
+<div class="col-md-3 col-xs-12">
+  <p>Selling Price<br>{%if el[4]=='0'%}Free{%else%}{{el[4]}}{%endif%}</p>
+</div>
+<div class="col-md-2 col-xs-12">
+  <p>Used For<br>{{el[5]}}</p>
+</div>
+<div class="col-md-2 col-xs-12">
+</div>
+<div class="col-md-2 col-xs-12" align="right">
+  {%if el[8]=='y'%}
+  <button type="button" class="btn btn-info" disabled="disabled">Details</button>
+  {%else%}
+  <a href="{{url_for('post',tr_id=el[0])}}" class="btn btn-info" role="button">Details</a>
+  {%endif%}
+</div>
+</div>
+{%endif%}
+{%if session.admin%}
+<div class="row" align="center">
+  <button type="button" class="btn btn-danger"><a style="color:white;text-decoration:none;" href="{{url_for('admin_remove_post',tr_id=el[0])}}">Remove</a></button>
+</div>
+{%endif%}
+</div>
+</div>
+</div>
+{%else%}
+<div class="col-md-10 col-xs-10 col-md-offset-1 col-xs-offset-1">
+  <div class="panel panel-default">
+    <div class="panel-body">
+  <div class="row">
+    {%if el[8]=='y'%}
+    <div class="col-md-1 col-xs-2">
+      <span style="font-size:13px;" class="label label-success">CLOSED</span>
+    </div>
+    {%else%}
+    <div class="col-md-1 col-xs-2">
+      <span style="font-size:13px;" class="label label-warning">SEEK</span>
+    </div>
+    {%endif%}
+    <div class="col-md-10 col-xs-8" align="center">
+      <p><b>ITEM: {{el[3]}}</b></p>
+  </div>
+  <div class="col-md-1 col-xs-2">
+    <span style="font-size:13px;" class="badge">#{{el[0]}}</span>
+</div>
+</div>
+{%if not el[6]=='NULL'%}
+<div class="row" align="center" style="padding:5px;">
+  {%if el[7]==session['user_id']:%}
+  <div class="col-md-3 col-xs-12">
+    <p>Posted By:<br>{{el[2]}}</p>
+  </div>
+  <div class="col-md-3 col-xs-12">
+    <p>Additional info:<br>{{el[6]}}</p>
+  </div>
+  <div class="col-md-3 col-xs-12">
+  </div>
+  <div class="col-md-3 col-xs-12" align="right">
+    {%if el[8]=='y'%}
+    <button type="button" class="btn btn-info" disabled="disabled">Details</button>
+    {%else%}
+    <a href="{{url_for('post',tr_id=el[0])}}" class="btn btn-info" role="button">Details</a>
+    {%endif%}
+  </div>
+  {%else%}
+<div class="col-md-3 col-xs-12">
+  <p>Posted By:<br>{{el[2]}}</p>
+</div>
+<div class="col-md-3 col-xs-12">
+  <p>Additional info:<br>{{el[6]}}</p>
+</div>
+<div class="col-md-3 col-xs-12" align="right">
+  <div class="modal fade" id="{{data.index(el)}}" role="dialog" align="center">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Help out</h4>
+        </div>
+        <div class="modal-body">
+          <form method="post">
+            <p>This will share your email address with {{el[2]}}.<br>Do you want to send your contact number as well?</p>
+          <label><input required type="radio" name="num_s" value="y,{{el[0]}},{{el[7]}},{{el[2]}},{{el[3]}}">Yes</label>&nbsp;&nbsp;
+          <label><input type="radio" name="num_s" value="n,{{el[0]}},{{el[7]}},{{el[2]}},{{el[3]}}">No</label><br>
+          {%if session['contact']=='NULL'%}
+          <input class="form-control" type="text" name="number" placeholder="Enter contact number"value="{{request.form.number}}"><br>{%endif%}
+        <input class="btn btn-default" type="submit" value="Send contact info.">
+         </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <button type="button" class="btn btn-success" data-toggle="modal" data-target="#{{data.index(el)}}" {%if el[8]=='y'%}disabled="disabled"{%endif%}>Help out</button>
+</div>
+<div class="col-md-3 col-xs-12" align="right">
+  {%if el[8]=='y'%}
+  <button type="button" class="btn btn-info" disabled="disabled">Details</button>
+  {%else%}
+  <a href="{{url_for('post',tr_id=el[0])}}" class="btn btn-info" role="button">Details</a>
+  {%endif%}
+</div>
+{%endif%}
+
+</div>
+{%else:%}
+<div class="row" align="center" style="padding:5px;">
+  {%if el[7]==session['user_id']:%}
+  <div class="col-md-3 col-xs-12">
+    <p>Posted By:<br>{{el[2]}}</p>
+  </div>
+  <div class="col-md-3 col-xs-12">
+  </div>
+  <div class="col-md-3 col-xs-12">
+  </div>
+  <div class="col-md-3 col-xs-12" align="right">
+    {%if el[8]=='y'%}
+    <button type="button" class="btn btn-info" disabled="disabled">Details</button>
+    {%else%}
+    <a href="{{url_for('post',tr_id=el[0])}}" class="btn btn-info" role="button">Details</a>
+    {%endif%}
+  </div>
+{%else%}
+<div class="col-md-3 col-xs-12">
+  <p>Posted By:<br>{{el[2]}}</p>
+</div>
+<div class="col-md-3 col-xs-12">
+</div>
+<div class="col-md-3 col-xs-12" align="right">
+  <div class="modal fade" id="{{data.index(el)+20}}" role="dialog" align="center">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Help out</h4>
+        </div>
+        <div class="modal-body">
+          <form method="post">
+            <p>This will share your email address with {{el[2]}}.<br>Do you want to send your contact number as well?</p>
+          <label><input required type="radio" name="num_s" value="y,{{el[0]}},{{el[7]}},{{el[2]}},{{el[3]}}">Yes</label>&nbsp;&nbsp;
+          <label><input type="radio" name="num_s" value="n,{{el[0]}},{{el[7]}},{{el[2]}},{{el[3]}}">No</label><br>
+          {%if session['contact']=='NULL'%}
+          <input class="form-control" type="text" name="number" placeholder="Enter contact number"value="{{request.form.number}}"><br>{%endif%}
+        <input class="btn btn-default" type="submit" value="Send contact info.">
+         </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <button type="button" class="btn btn-success" data-toggle="modal" data-target="#{{data.index(el)+20}}" {%if el[8]=='y'%}disabled="disabled"{%endif%}>Help out</button>
+</div>
+<div class="col-md-3 col-xs-12" align="right">
+  {%if el[8]=='y'%}
+  <button type="button" class="btn btn-info" disabled="disabled">Details</button>
+  {%else%}
+  <a href="{{url_for('post',tr_id=el[0])}}" class="btn btn-info" role="button">Details</a>
+  {%endif%}
+</div>
+{%endif%}
+</div>
+
+{%endif%}
+{%if session.admin%}
+<div class="row" align="center">
+  <button type="button" class="btn btn-danger"><a style="color:white;text-decoration:none;" href="{{url_for('admin_remove_post',tr_id=el[0])}}">Remove</a></button>
+</div>
+{%endif%}
+</div>
+</div>
+</div>
+{%endif%}
+
+
+{%endfor%}
+
+{%endif%}
+{%endblock%}
