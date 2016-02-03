@@ -13,14 +13,37 @@
 {%endblock%}
 </head>
 <body {%if session.logged_in%} style="padding-top: 50px;"{%endif%}>
+  <style>
+  @media screen and (min-width: 1100px) {
+      #xs_nav{
+          display:none;
+  }
+  #xs{
+    display:none;
+  }
+  }
+  @media only screen and (max-width: 1100px) {
+      #md_nav{
+          display:none;
+  }
+
+  }
+
+
+  </style>
   {%if session.logged_in:%}
   <nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
     <div class="container-fluid">
       <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavBar">
+        <button type="button" class="navbar-toggle btn btn-default btn-sm" data-toggle="collapse" data-target="#myNavBar">
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
+
+        </button>
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#xs_nav">
+          <span style="color:white;">Search</span>
+
         </button>
         <a class="navbar-brand" href="{{url_for('index')}}">Nearly-New</a>
       </div>
@@ -32,12 +55,14 @@
           <li {%block your_posts_active%}{%endblock%}><a href="{{url_for('your_posts')}}">Your Posts</a></li>
           <li {%block notifications_active%}{%endblock%}><a href="{{url_for('notifications')}}">Notifications&nbsp;{%if notif_count>0%}<span class="badge">{{notif_count}}</span>{%endif%}</a></li>
         </ul>
+        <div id="md_nav">
         <form action="{{url_for('search')}}" class="navbar-form navbar-left" role="search" method='POST'>
         <div class="form-group">
           <input type="text" class="form-control" placeholder="Search" name="query" value={{request.form.query}}>
         </div>
         <button type="submit" class="btn btn-primary">Search</button>
       </form>
+    </div>
         <ul class="nav navbar-nav navbar-right">
           <li {%block about_active%}{%endblock%}><a href="{{url_for('about')}}">About</a></li>
           <li {%block settings_active%}{%endblock%}><a href="{{url_for('settings')}}">Settings</a></li>
@@ -45,7 +70,18 @@
         </ul>
 </div>
     </div>
+    <div id="xs">
+    <div class="collapse navbar-collapse" id="xs_nav">
+      <form action="{{url_for('search')}}" class="navbar-form navbar-left" role="search" method='POST'>
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="Search" name="query" value={{request.form.query}}>
+      </div>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+</div>
+</div>
   </nav>
+
   {%endif%}
 {%block body%}
 

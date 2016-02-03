@@ -169,6 +169,7 @@ def board(num):
         return render_template('board.html',data=data,no_of_pages=no_of_pages, current=current, posts_on_page=len(data),notif_count=notif_count)
 
 @app.route('/search',methods=['POST','GET'])
+@login_required
 def search():
     cur,conn=connection()
     cur.execute('CREATE TABLE IF NOT EXISTS search (keyword TEXT, tr_id INTEGER)')
