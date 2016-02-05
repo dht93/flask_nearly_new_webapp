@@ -8,4 +8,4 @@ Encryption library used:
 - passlib https://pythonhosted.org/passlib/
 
 SMTP Server used:
--Flask Mail https://pythonhosted.org/Flask-Mail/
+- Flask Mail https://pythonhosted.org/Flask-Mail/
