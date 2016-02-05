@@ -2,14 +2,29 @@ from flask import Flask, render_template,request, url_for, redirect, session, fl
 import sqlite3
 from functools import wraps
 from passlib.hash import sha256_crypt
-
+from flask_mail import Mail, Message
+from threading import Thread
+import uuid
 
 app=Flask(__name__)
+app.config.update(
+	DEBUG=True,
+	#EMAIL SETTINGS
+	MAIL_SERVER='smtp.gmail.com',
+	MAIL_PORT=465,
+	MAIL_USE_SSL=True,
+    MAIL_USE_TLS = False,
+	MAIL_USERNAME = 'email@email.com',
+	MAIL_PASSWORD = 'password',
+    MAIL_DEFAULT_SENDER = 'email@email.com'
+	)
+mail = Mail(app)
+
 
 def login_required(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        if 'logged_in' in session:
+        if 'logged_in' in session and session['verified']==True:
             return f(*args,**kwargs)
         else:
             #flash("You need to login first")
@@ -20,6 +35,18 @@ def connection():
     conn=sqlite3.connect('users.sqlite')
     cur=conn.cursor()
     return (cur,conn)
+
+def send_async_email(msg):
+    with app.app_context():
+        mail.send(msg)
+    print "\nmail sent!\n"
+
+def send_email(subject,recipients, text_body, html_body):
+    msg = Message(subject, recipients=recipients)
+    #msg.body = text_body
+    msg.html = html_body
+    thr = Thread(target=send_async_email, args=[msg])
+    thr.start()
 
 def get_notifs():
     cur,conn=connection()
@@ -47,11 +74,16 @@ def index():
         notif_count=get_notifs()
     return render_template('home.html',notif_count=notif_count)
 
+@app.route('/unverified/')
+def unverified():
+    return render_template('unverified.html')
+
+
 @app.route('/register/',methods=['GET','POST'])
 def register_page():
     if request.method=='POST':
         cur,conn=connection()
-        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT, name TEXT, contact TEXT, email TEXT, password TEXT, settings TEXT)')
+        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT, name TEXT, contact TEXT, email TEXT, password TEXT, settings TEXT, verified TEXT)')
         conn.commit()
         user_name=request.form['user_name']
         cur.execute('SELECT COUNT (*) FROM users WHERE user_name=?',(user_name,))
@@ -61,20 +93,31 @@ def register_page():
             email=request.form['email']
             password=sha256_crypt.encrypt(str(request.form['password']))
             settings='00'
-            cur.execute('INSERT INTO users (user_name, name, contact, email, password, settings) VALUES (?,?,?,?,?,?)',(user_name,name,'NULL',email,password,settings))
+            cur.execute('INSERT INTO users (user_name, name, contact, email, password, settings, verified) VALUES (?,?,?,?,?,?,?)',(user_name,name,'NULL',email,password,settings,'N'))
             conn.commit()
             cur.execute('SELECT user_id FROM users WHERE user_name=?',(user_name,))
             user_id=cur.fetchone()[0]
-            session['logged_in']=True
-            session['user_id']=user_id
-            session['user_name']=user_name
-            session['name']=name
-            session['settings']=settings
-            session['email']=email
-            session['contact']='NULL'
+            #session['logged_in']=True
+            #session['user_id']=user_id
+            #session['user_name']=user_name
+            #session['name']=name
+            #session['settings']=settings
+            #session['email']=email
+            #session['contact']='NULL'
+            session['verified']=False
+            verf=uuid.uuid5(uuid.uuid4(), str(user_id))
+            verification_url="http://127.0.0.1:5000/verify/"+str(verf)
+            cur.execute('CREATE TABLE IF NOT EXISTS verification_codes (verf TEXT, user_id INTEGER)')
+            conn.commit()
+            cur.execute('INSERT INTO verification_codes VALUES (?,?)',(str(verf),user_id))
+            conn.commit()
+            html_body1=render_template('emails/new_user.html',name=name,user_name=user_name,email=email)
+            send_email('New sign-up',['dhruvt93@gmail.com'], None, html_body1)
+            html_body2=render_template('emails/register.html',name=name,verification_url=verification_url)
+            send_email('Welcome to Nearly-New!',[email], None, html_body2)
             cur.close()
             conn.close()
-            return redirect(url_for('index'))
+            return redirect(url_for('unverified'))
         else:
             error="This user name has already been taken. Please choose another."
             return render_template('register.html',error=error)
@@ -83,10 +126,11 @@ def register_page():
         return render_template('register.html')
 
 @app.route('/login/',methods=['GET','POST'])
-def login_page():
+@app.route('/login/<message>/',methods=['GET','POST'])
+def login_page(message=None):
     if request.method=='POST':
         cur,conn=connection()
-        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT, name TEXT, contact TEXT, email TEXT, password TEXT, settings TEXT)')
+        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT, name TEXT, contact TEXT, email TEXT, password TEXT, settings TEXT, verified TEXT)')
         conn.commit()
         user_name=request.form['user_name']
         cur.execute('SELECT COUNT (*) FROM users WHERE user_name=?',(user_name,))
@@ -101,23 +145,49 @@ def login_page():
             cur.execute('SELECT * FROM users WHERE user_name=?',(user_name,))
             data=cur.fetchall()[0]
             if sha256_crypt.verify(password,data[5]):
-                session['logged_in']=True
-                session['user_name']=user_name
-                session['user_id']=data[0]
-                session['name']=data[2]
-                session['settings']=data[6]
-                session['email']=data[4]
-                session['contact']=data[3]
+                if data[7]=='N':
+                    cur.close()
+                    conn.close()
+                    return redirect(url_for('unverified'))
+                else:
+                    session['verified']=True
+                    session['logged_in']=True
+                    session['user_name']=user_name
+                    session['user_id']=data[0]
+                    session['name']=data[2]
+                    session['settings']=data[6]
+                    session['email']=data[4]
+                    session['contact']=data[3]
+                    return redirect(url_for('board',num=1))
                 cur.close()
                 conn.close()
-                return redirect(url_for('board',num=1))
+
             else:
                 cur.close()
                 conn.close()
                 error="Invalid credentials. Please try again."
                 return render_template('login.html',error=error)
     else:
-        return render_template('login.html')
+        print message
+        return render_template('login.html',message=message)
+
+@app.route('/verify/<verf>/')
+def verify_user(verf):
+    print verf
+    cur,conn=connection()
+    cur.execute('CREATE TABLE IF NOT EXISTS verification_codes (verf TEXT, user_id INTEGER)')
+    conn.commit()
+    cur.execute('SELECT user_id FROM verification_codes WHERE verf=?',(verf,))
+    user_id=cur.fetchone()[0]
+    cur.execute('SELECT verified FROM users WHERE user_id=?',(user_id,))
+    status=cur.fetchone()[0]
+    if status=='N':
+        cur.execute('UPDATE users SET verified=? WHERE user_id=?',('Y',user_id))
+        conn.commit()
+        message='new-verified'
+    else:
+        message='already-verified'
+    return redirect(url_for('login_page',message=message))
 
 
 @app.route('/board/<int:num>/',methods=['GET','POST'])
@@ -181,7 +251,6 @@ def search():
     for word in words:
         if len(word)>3:
             keywords.append(word)
-    tr_ids=[]
     data=[]
     for keyword in keywords:
         cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id,closed FROM posts,users WHERE posts.user_id=users.user_id AND content LIKE ? AND closed=? ORDER BY tr_id DESC',('%'+keyword+'%','n'))
