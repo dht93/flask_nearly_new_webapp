@@ -1,12 +1,13 @@
-from flask import Flask, render_template,request, url_for, redirect, session, flash
+from flask import Flask, render_template,request, url_for, redirect, session
 import sqlite3
 from functools import wraps
 from passlib.hash import sha256_crypt
 from flask_mail import Mail, Message
-from threading import Thread
 import uuid
+import urllib
 
 app=Flask(__name__)
+
 app.config.update(
 	DEBUG=True,
 	#EMAIL SETTINGS
@@ -45,8 +46,8 @@ def send_email(subject,recipients, text_body, html_body):
     msg = Message(subject, recipients=recipients)
     #msg.body = text_body
     msg.html = html_body
-    thr = Thread(target=send_async_email, args=[msg])
-    thr.start()
+    with app.app_context():
+        mail.send(msg)
 
 def get_notifs():
     cur,conn=connection()
@@ -97,16 +98,9 @@ def register_page():
             conn.commit()
             cur.execute('SELECT user_id FROM users WHERE user_name=?',(user_name,))
             user_id=cur.fetchone()[0]
-            #session['logged_in']=True
-            #session['user_id']=user_id
-            #session['user_name']=user_name
-            #session['name']=name
-            #session['settings']=settings
-            #session['email']=email
-            #session['contact']='NULL'
             session['verified']=False
             verf=uuid.uuid5(uuid.uuid4(), str(user_id))
-            verification_url="http://127.0.0.1:5000/verify/"+str(verf)
+            verification_url="http://127.0.0.1:5000/verify?"+urllib.urlencode({'u_id':user_id,'verf':verf})
             cur.execute('CREATE TABLE IF NOT EXISTS verification_codes (verf TEXT, user_id INTEGER)')
             conn.commit()
             cur.execute('INSERT INTO verification_codes VALUES (?,?)',(str(verf),user_id))
@@ -122,7 +116,6 @@ def register_page():
             error="This user name has already been taken. Please choose another."
             return render_template('register.html',error=error)
     else:
-
         return render_template('register.html')
 
 @app.route('/login/',methods=['GET','POST'])
@@ -161,7 +154,6 @@ def login_page(message=None):
                     return redirect(url_for('board',num=1))
                 cur.close()
                 conn.close()
-
             else:
                 cur.close()
                 conn.close()
@@ -171,23 +163,31 @@ def login_page(message=None):
         print message
         return render_template('login.html',message=message)
 
-@app.route('/verify/<verf>/')
-def verify_user(verf):
-    print verf
+@app.route('/verify')
+def verify_user():
+    u_id=int(request.args.get('u_id'))
+    verf=str(request.args.get('verf'))
     cur,conn=connection()
     cur.execute('CREATE TABLE IF NOT EXISTS verification_codes (verf TEXT, user_id INTEGER)')
     conn.commit()
-    cur.execute('SELECT user_id FROM verification_codes WHERE verf=?',(verf,))
-    user_id=cur.fetchone()[0]
-    cur.execute('SELECT verified FROM users WHERE user_id=?',(user_id,))
-    status=cur.fetchone()[0]
-    if status=='N':
-        cur.execute('UPDATE users SET verified=? WHERE user_id=?',('Y',user_id))
-        conn.commit()
-        message='new-verified'
-    else:
-        message='already-verified'
-    return redirect(url_for('login_page',message=message))
+    try:
+        cur.execute('SELECT verf FROM verification_codes WHERE user_id=?',(u_id,))
+        v=cur.fetchone()[0]
+        if verf==v:
+            cur.execute('SELECT verified FROM users WHERE user_id=?',(u_id,))
+            status=cur.fetchone()[0]
+            if status=='N':
+                cur.execute('UPDATE users SET verified=? WHERE user_id=?',('Y',u_id))
+                conn.commit()
+                message='new-verified'
+            else:
+                message='already-verified'
+            return redirect(url_for('login_page',message=message))
+        else:
+            return render_template('404.html')
+    except:
+        return render_template('404.html')
+
 
 
 @app.route('/board/<int:num>/',methods=['GET','POST'])
@@ -570,7 +570,7 @@ def page_not_found(e):
     return render_template('404.html')
 
 @app.errorhandler(500)
-def page_not_found(e):
+def page_not_found1(e):
 
     return render_template('500.html')
 
@@ -581,7 +581,7 @@ def admin():
         name=request.form['name']
         password=request.form['password']
         sequence=request.form['sequence']
-        if name=='XXXXXX' and password=='XXXXXX' and sequence=='XXXXXX':
+        if name=='XXXXXXX' and password=='XXXXXXX' and sequence=='XXXXXXX':
             session['admin']=True
             return redirect(url_for('board',num=1))
         else:
