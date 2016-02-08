@@ -403,6 +403,77 @@ def settings():
         return render_template('settings.html',settings=settings,message=None,notif_count=notif_count)
 
 
+@app.route('/forgot_password/',methods=['GET','POST'])
+def forgot_password():
+	if request.method=='POST':
+		email=request.form['email']
+		cur,conn=connection()
+		cur.execute('CREATE TABLE IF NOT EXISTS reset_codes (user_id INTEGER, code TEXT, used TEXT)')
+		conn.commit()
+		cur.execute('SELECT count(*) FROM users WHERE email=?',(email,))
+		count=cur.fetchone()[0]
+		if count>0:
+			cur.execute('SELECT user_id, name FROM users where email=?',(email,))
+			resp=cur.fetchone()
+			user_id=resp[0]
+			name=resp[1]
+			rst=str(uuid.uuid5(uuid.uuid4(),str(email)))
+			reset_url="http://127.0.0.1:5000/reset_pass?"+urllib.urlencode({'u_id':user_id,'code':rst})
+			html_body=render_template('emails/reset_pass.html',name=name,reset_url=reset_url)
+			send_email('Reset Password',[email],None,html_body)
+			cur.execute('SELECT COUNT(*) FROM reset_codes WHERE user_id=?',(user_id,))
+			c=cur.fetchone()[0]
+			if c==0:
+				cur.execute('INSERT INTO reset_codes VALUES (?,?,?)',(user_id,rst,'N'))
+			else:
+				cur.execute('UPDATE reset_codes SET code=?,used=? WHERE user_id=?',(rst,'N',user_id))
+			conn.commit()
+			message="sent"
+		else:
+			message="no"
+		cur.close()
+		conn.close()
+		return render_template('forgot_resp.html',message=message)
+	else:
+		return render_template('forgot_pass.html')
+
+@app.route('/reset_pass',methods=['GET','POST'])
+def reset_pass():
+	if request.method=='GET':
+		user_id=int(request.args.get('u_id'))
+		print user_id
+		code=request.args.get('code')
+		cur,conn=connection()
+		try:
+			cur.execute('SELECT user_id, used FROM reset_codes WHERE code=?',(code,))
+			resp=cur.fetchone()
+			print resp
+			if resp[0]==user_id and resp[1]=='N':
+				cur.close()
+				conn.close()
+				return render_template('reset_pass.html')
+			elif resp[1]=='Y':
+				return render_template('used_code.html')
+			else:
+				cur.close()
+				conn.close()
+				return render_template('404.html')
+		except:
+			return render_template('404.html')
+	else:
+		cur,conn=connection()
+		user_id=int(request.args.get('u_id'))
+		p=str(request.form['password'])
+		password=sha256_crypt.encrypt(str(request.form['password']))
+		cur.execute('UPDATE users SET password=? WHERE user_id=?',(password,user_id))
+		cur.execute('UPDATE reset_codes SET used=? WHERE user_id=?',('Y',user_id))
+		conn.commit()
+		cur.close()
+		conn.close()
+		return render_template('pass_success.html')
+
+
+
 @app.route('/your_posts/')
 @login_required
 def your_posts():

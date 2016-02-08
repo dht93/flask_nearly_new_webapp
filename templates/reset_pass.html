@@ -10,24 +10,16 @@
     <div class="row">
     <h1>Nearly-New</h1>
   </div>
-    {%if message=='new-verified':%}
-    <p style="color:#000000;">Thank you for verifying. Please login now.</p>
-    {%elif message=='already-verified':%}
-    <p style="color:#000000;">You have already verified. Please login now.</p>
-    {%else%}
-      <p style="color:#000000;">Login</p>
-    {%endif%}
+      <p style="color:#000000;">Enter new password</p>
+
     <div class="row" style="padding-top:20px;">
       <div class="col-md-6 col-xs-6 col-md-offset-3 col-xs-offset-3">
         <form action="" class="form-inline" method="post">
           <div class="row">
-          <input autofocus="autofocus" required type="text" class="form-control input-lg" placeholder = "username" name="user_name" value="{{request.form.user_name}}">
-        </div>
-        <div class="row" style="padding-top:5px;">
-          <input required id="pass" type="password" class="form-control input-lg" placeholder = "password" name="password" value="{{request.form.password}}">
+          <input autofocus="autofocus" required type="password" class="form-control input-lg" placeholder = "password" name="password" value="{{request.form.password}}">
         </div>
         <div class="row" style="padding-top:30px;">
-          <input class="btn btn-lg btn-primary" type="submit" value="Login">
+          <input class="btn btn-lg btn-primary" type="submit" value="Submit">
         </div>
         </form>
 
@@ -36,8 +28,7 @@
 
 <div class="row" style="padding-top:30px;">
 
-    <a href="{{url_for('index')}}" class="btn btn-primary btn-md" role="button">Go Back</a>
-    <a href="{{url_for('forgot_password')}}" class="btn btn-primary btn-md" role="button">Forgot Password</a>
+    <a href="{{url_for('index')}}" class="btn btn-primary btn-lg" role="button">Home</a>
 </div>
 {%if error%}
 <div class="row" align="center" style="padding-top:5px;">
