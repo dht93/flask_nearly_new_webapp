@@ -82,41 +82,45 @@ def unverified():
 
 @app.route('/register/',methods=['GET','POST'])
 def register_page():
-    if request.method=='POST':
-        cur,conn=connection()
-        cur.execute('CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT, name TEXT, contact TEXT, email TEXT, password TEXT, settings TEXT, verified TEXT)')
-        conn.commit()
-        user_name=request.form['user_name']
-        cur.execute('SELECT COUNT (*) FROM users WHERE user_name=?',(user_name,))
-        count=cur.fetchone()[0]
-        if count==0:
-            name=request.form['name']
-            email=request.form['email']
-            password=sha256_crypt.encrypt(str(request.form['password']))
-            settings='00'
-            cur.execute('INSERT INTO users (user_name, name, contact, email, password, settings, verified) VALUES (?,?,?,?,?,?,?)',(user_name,name,'NULL',email,password,settings,'N'))
-            conn.commit()
-            cur.execute('SELECT user_id FROM users WHERE user_name=?',(user_name,))
-            user_id=cur.fetchone()[0]
-            session['verified']=False
-            verf=uuid.uuid5(uuid.uuid4(), str(user_id))
-            verification_url="http://127.0.0.1:5000/verify?"+urllib.urlencode({'u_id':user_id,'verf':verf})
-            cur.execute('CREATE TABLE IF NOT EXISTS verification_codes (verf TEXT, user_id INTEGER)')
-            conn.commit()
-            cur.execute('INSERT INTO verification_codes VALUES (?,?)',(str(verf),user_id))
-            conn.commit()
-            html_body1=render_template('emails/new_user.html',name=name,user_name=user_name,email=email)
-            send_email('New sign-up',['dhruvt93@gmail.com'], None, html_body1)
-            html_body2=render_template('emails/register.html',name=name,verification_url=verification_url)
-            send_email('Welcome to Nearly-New!',[email], None, html_body2)
-            cur.close()
-            conn.close()
-            return redirect(url_for('unverified'))
-        else:
-            error="This user name has already been taken. Please choose another."
-            return render_template('register.html',error=error)
-    else:
-        return render_template('register.html')
+	if request.method=='POST':
+		cur,conn=connection()
+		cur.execute('CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT, name TEXT, contact TEXT, email TEXT, password TEXT, settings TEXT, verified TEXT)')
+		conn.commit()
+		user_name=request.form['user_name']
+		cur.execute('SELECT COUNT (*) FROM users WHERE user_name=?',(user_name,))
+		count=cur.fetchone()[0]
+		if count==0:
+			email=request.form['email']
+			cur.execute('SELECT COUNT (*) FROM users WHERE email=?',(email,))
+			c=cur.fetchone()[0]
+			if c==0:
+				name=request.form['name']
+				password=sha256_crypt.encrypt(str(request.form['password']))
+				settings='00'
+				cur.execute('INSERT INTO users (user_name, name, contact, email, password, settings, verified) VALUES (?,?,?,?,?,?,?)',(user_name,name,'NULL',email,password,settings,'N'))
+				conn.commit()
+				cur.execute('SELECT user_id FROM users WHERE user_name=?',(user_name,))
+				user_id=cur.fetchone()[0]
+				session['verified']=False
+				verf=uuid.uuid5(uuid.uuid4(), str(user_id))
+				verification_url="http://127.0.0.1:5000/verify?"+urllib.urlencode({'u_id':user_id,'verf':verf})
+				cur.execute('CREATE TABLE IF NOT EXISTS verification_codes (verf TEXT, user_id INTEGER)')
+				conn.commit()
+				cur.execute('INSERT INTO verification_codes VALUES (?,?)',(str(verf),user_id))
+				conn.commit()
+				html_body2=render_template('emails/register.html',name=name,verification_url=verification_url)
+				send_email('Welcome to Nearly-New!',[email], None, html_body2)
+				cur.close()
+				conn.close()
+				return redirect(url_for('unverified'))
+			else:
+				error="This email has already been used. Login using your credentials or click on forgot password"
+				return render_template('register.html',error=error)
+		else:
+			error="This user name has already been taken. Please choose another."
+			return render_template('register.html',error=error)
+	else:
+		return render_template('register.html')
 
 @app.route('/login/',methods=['GET','POST'])
 @app.route('/login/<message>/',methods=['GET','POST'])
@@ -165,28 +169,33 @@ def login_page(message=None):
 
 @app.route('/verify')
 def verify_user():
-    u_id=int(request.args.get('u_id'))
-    verf=str(request.args.get('verf'))
-    cur,conn=connection()
-    cur.execute('CREATE TABLE IF NOT EXISTS verification_codes (verf TEXT, user_id INTEGER)')
-    conn.commit()
-    try:
-        cur.execute('SELECT verf FROM verification_codes WHERE user_id=?',(u_id,))
-        v=cur.fetchone()[0]
-        if verf==v:
-            cur.execute('SELECT verified FROM users WHERE user_id=?',(u_id,))
-            status=cur.fetchone()[0]
-            if status=='N':
-                cur.execute('UPDATE users SET verified=? WHERE user_id=?',('Y',u_id))
-                conn.commit()
-                message='new-verified'
-            else:
-                message='already-verified'
-            return redirect(url_for('login_page',message=message))
-        else:
-            return render_template('404.html')
-    except:
-        return render_template('404.html')
+	u_id=int(request.args.get('u_id'))
+	verf=str(request.args.get('verf'))
+	cur,conn=connection()
+	cur.execute('CREATE TABLE IF NOT EXISTS verification_codes (verf TEXT, user_id INTEGER)')
+	conn.commit()
+	try:
+		cur.execute('SELECT verf FROM verification_codes WHERE user_id=?',(u_id,))
+		v=cur.fetchone()[0]
+		if verf==v:
+			cur.execute('SELECT verified FROM users WHERE user_id=?',(u_id,))
+			status=cur.fetchone()[0]
+			if status=='N':
+				cur.execute('UPDATE users SET verified=? WHERE user_id=?',('Y',u_id))
+				conn.commit()
+				cur.execute('SELECT name, user_name, email FROM users WHERE user_id=?',(u_id,))
+				data=cur.fetchone()
+				html_body=render_template('emails/new_user.html',name=data[0],user_name=data[1],email=data[2])
+				send_email('New sign-up',['dhruvt93@gmail.com'], None, html_body)
+				print html_body
+				message='new-verified'
+			else:
+				message='already-verified'
+			return redirect(url_for('login_page',message=message))
+		else:
+			return render_template('404.html')
+	except:
+		return render_template('404.html')
 
 
 
