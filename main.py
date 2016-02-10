@@ -697,7 +697,7 @@ def admin_remove_post(tr_id):
 @admin_required
 def admin_users():
     cur,conn=connection()
-    cur.execute('SELECT user_id,user_name,name,email FROM users ORDER BY user_id DESC')
+    cur.execute('SELECT user_id,user_name,name,email,verified FROM users ORDER BY user_id DESC')
     data=cur.fetchall()
     cur.close()
     conn.close()
