@@ -696,12 +696,16 @@ def admin_remove_post(tr_id):
 @login_required
 @admin_required
 def admin_users():
-    cur,conn=connection()
-    cur.execute('SELECT user_id,user_name,name,email,verified FROM users ORDER BY user_id DESC')
-    data=cur.fetchall()
-    cur.close()
-    conn.close()
-    return render_template('admin_users.html',data=data,notif_count=0)
+	cur,conn=connection()
+	cur.execute('SELECT user_id,user_name,name,email,verified FROM users ORDER BY user_id DESC')
+	data=cur.fetchall()
+	cur.execute('SELECT COUNT(*) FROM users WHERE verified=?',('Y',))
+	verified=cur.fetchone()[0]
+	cur.execute('SELECT COUNT(*) FROM users WHERE verified=?',('N',))
+	not_verified=cur.fetchone()[0]
+	cur.close()
+	conn.close()
+	return render_template('admin_users.html',data=data,notif_count=0,verified=verified,not_verified=not_verified)
 
 @app.route('/admin/remove_user/<int:user_id>/')
 @login_required

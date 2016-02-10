@@ -2,11 +2,13 @@
 
 {%block body%}
 <div class="container" align="center">
+    <h3>Verified: {{verified}}</h3>
+    <h3>Not verified: {{not_verified}}</h3>
   {%for user in data:%}
   <div class="panel panel-default">
     <div class="panel-body">
       {{user[2]}} signed up with:<br>username: {{user[1]}}<br>user_id: {{user[0]}}<br>Email: {{user[3]}}.<br>
-      {%if data[4]=='Y'%}Verified: <b>YES</b>{%else%}Verified: <b>NO</b>{%endif%}
+      {%if user[4]=='Y'%}Verified: <b>YES</b>{%else%}Verified: <b>NO</b>{%endif%}<br>
       <button type="button" class="btn btn-danger"><a style="color:white;text-decoration:none;" href="{{url_for('admin_remove_user',user_id=user[0])}}">Remove user</a></button>
     </div>
   </div>
