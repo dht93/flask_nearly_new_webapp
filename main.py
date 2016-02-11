@@ -566,31 +566,33 @@ def close_post(tr_id):
 @app.route('/notifications/')
 @login_required
 def notifications():
-    cur,conn=connection()
-    cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT, content TEXT)')
-    conn.commit()
-    cur.execute('CREATE TABLE IF NOT EXISTS help_out (help_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,tr_id NUMBER, helper_id NUMBER, helper_name TEXT, helped_id NUMBER, content TEXT, data_sent TEXT, ack TEXT)')
-    conn.commit()
-    #recipient_new_notifs
-    cur.execute('SELECT * FROM requests WHERE recipient=? AND response=? ORDER BY request_id DESC',(session['user_id'],'NY'))
-    recipient_new_notifs=cur.fetchall()
-    #recipient_old_notifs
-    cur.execute('SELECT * FROM requests WHERE recipient=? AND response=? OR response=? ORDER BY request_id DESC',(session['user_id'],'Y','N'))
-    recipient_old_notifs=cur.fetchall()
-    #requestor_new_notifs
-    cur.execute('SELECT * FROM requests WHERE requestor=? AND ack=? ORDER BY request_id DESC',(session['user_id'],'NS'))
-    requestor_new_notifs=cur.fetchall()
-    #requestor_old_notifs
-    cur.execute('SELECT * FROM requests WHERE requestor=? AND ack=? ORDER BY request_id DESC',(session['user_id'],'S'))
-    requestor_old_notifs=cur.fetchall()
-    cur.execute('SELECT help_id,helper_name, data_sent,content FROM help_out where helped_id=? AND ack=? ORDER BY help_id DESC',(session['user_id'],'NY'))
-    helped_new=cur.fetchall()
-    cur.execute('SELECT help_id,helper_name, data_sent,content FROM help_out where helped_id=? AND ack=? ORDER BY help_id DESC',(session['user_id'],'S'))
-    helped_old=cur.fetchall()
-    cur.close()
-    conn.close()
-    notif_count=get_notifs()
-    return render_template('notifications.html',recipient_new_notifs=recipient_new_notifs,recipient_old_notifs=recipient_old_notifs,requestor_new_notifs=requestor_new_notifs,requestor_old_notifs=requestor_old_notifs,notif_count=notif_count,helped_new=helped_new,helped_old=helped_old)
+	cur,conn=connection()
+	cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT, content TEXT)')
+	conn.commit()
+	cur.execute('CREATE TABLE IF NOT EXISTS help_out (help_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,tr_id NUMBER, helper_id NUMBER, helper_name TEXT, helped_id NUMBER, content TEXT, data_sent TEXT, ack TEXT)')
+	conn.commit()
+	#recipient_new_notifs
+	cur.execute('SELECT * FROM requests WHERE recipient=? AND response=? ORDER BY request_id DESC',(session['user_id'],'NY'))
+	recipient_new_notifs=cur.fetchall()
+	#recipient_old_notifs
+	cur.execute('SELECT * FROM requests WHERE recipient=? AND (response=? OR response=?) ORDER BY request_id DESC',(session['user_id'],'Y','N'))
+	recipient_old_notifs=cur.fetchall()
+	print recipient_old_notifs
+	#requestor_new_notifs
+	cur.execute('SELECT * FROM requests WHERE requestor=? AND ack=? ORDER BY request_id DESC',(session['user_id'],'NS'))
+	requestor_new_notifs=cur.fetchall()
+	#requestor_old_notifs
+	cur.execute('SELECT * FROM requests WHERE requestor=? AND ack=? ORDER BY request_id DESC',(session['user_id'],'S'))
+	requestor_old_notifs=cur.fetchall()
+	cur.execute('SELECT help_id,helper_name, data_sent,content FROM help_out where helped_id=? AND ack=? ORDER BY help_id DESC',(session['user_id'],'NY'))
+	helped_new=cur.fetchall()
+	cur.execute('SELECT help_id,helper_name, data_sent,content FROM help_out where helped_id=? AND ack=? ORDER BY help_id DESC',(session['user_id'],'S'))
+	helped_old=cur.fetchall()
+	cur.close()
+	conn.close()
+	notif_count=get_notifs()
+	return render_template('notifications.html',recipient_new_notifs=recipient_new_notifs,recipient_old_notifs=recipient_old_notifs,requestor_new_notifs=requestor_new_notifs,requestor_old_notifs=requestor_old_notifs,notif_count=notif_count,helped_new=helped_new,helped_old=helped_old)
+
 
 @app.route('/request/accept/<int:request_id>/')
 @login_required
