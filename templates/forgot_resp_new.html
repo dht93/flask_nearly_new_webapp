@@ -1,0 +1,16 @@
+{%extends 'cover_header.html'%}
+
+{%block features_active%}
+class="active"
+{%endblock%}
+
+{%block inner_cover%}
+<div class="inner cover">
+    {%if message=='sent':%}
+    <p class="lead">Email containing reset information sent. Check it out!</p>
+    {%elif message=='no':%}
+    <p class="lead">There is no account registered with the entered email address.</p>
+    {%endif%}
+</div>
+
+{%endblock%}

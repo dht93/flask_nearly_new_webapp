@@ -1,0 +1,15 @@
+{%extends 'cover_header.html'%}
+
+{%block features_active%}
+class="active"
+{%endblock%}
+
+{%block inner_cover%}
+<div class="inner cover">
+    <p class="lead">Password successfully changed.</p>
+    <p class="lead">
+      <a href="{{url_for('login_page')}}" class="btn btn-lg btn-primary">Login</a>
+    </p>
+</div>
+
+{%endblock%}

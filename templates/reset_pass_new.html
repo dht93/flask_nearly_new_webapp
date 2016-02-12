@@ -1,0 +1,19 @@
+{%extends 'cover_header.html'%}
+
+{%block home_active%}
+class="active"
+{%endblock%}
+
+{%block inner_cover%}
+<div class="inner cover">
+<p class="lead">Enter new password</p>
+<form action="" class="form-inline" method="post">
+  <div class="row">
+  <input autofocus="autofocus" required type="password" class="form-control input-lg" placeholder = "password" name="password" value="{{request.form.password}}">
+</div>
+<div class="row" style="padding-top:30px;">
+  <input class="btn btn-lg btn-primary" type="submit" value="Submit">
+</div>
+</form>
+</div>
+{%endblock%}

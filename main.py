@@ -116,7 +116,7 @@ def register_page():
 				cur.execute('INSERT INTO verification_codes VALUES (?,?)',(str(verf),user_id))
 				conn.commit()
 				html_body2=render_template('emails/register.html',name=name,verification_url=verification_url)
-				#send_email('Welcome to Nearly-New!',[email], None, html_body2)
+				send_email('Welcome to Nearly-New!',[email], None, html_body2)
 				cur.close()
 				conn.close()
 				return redirect(url_for('unverified'))
@@ -449,9 +449,9 @@ def forgot_password():
 			message="no"
 		cur.close()
 		conn.close()
-		return render_template('forgot_resp.html',message=message)
+		return render_template('forgot_resp_new.html',message=message)
 	else:
-		return render_template('forgot_pass.html')
+		return render_template('forgot_pass_new.html')
 
 @app.route('/reset_pass',methods=['GET','POST'])
 def reset_pass():
@@ -467,9 +467,9 @@ def reset_pass():
 			if resp[0]==user_id and resp[1]=='N':
 				cur.close()
 				conn.close()
-				return render_template('reset_pass.html')
+				return render_template('reset_pass_new.html')
 			elif resp[1]=='Y':
-				return render_template('used_code.html')
+				return render_template('used_code_new.html')
 			else:
 				cur.close()
 				conn.close()
@@ -486,7 +486,7 @@ def reset_pass():
 		conn.commit()
 		cur.close()
 		conn.close()
-		return render_template('pass_success.html')
+		return render_template('pass_success_new.html')
 
 
 

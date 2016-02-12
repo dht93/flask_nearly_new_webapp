@@ -1,0 +1,15 @@
+{%extends 'cover_header.html'%}
+
+{%block home_active%}
+class="active"
+{%endblock%}
+
+{%block inner_cover%}
+<div class="inner cover">
+<p class="lead">You've already used this link. Request another by clicking on the button below.</p>
+<div class="row" style="padding-top:20px;">
+    <a href="{{url_for('index')}}" class="btn btn-primary btn-md" role="button">Home</a>
+    <a href="{{url_for('forgot_password')}}" class="btn btn-primary btn-md" role="button">Forgot Password</a>
+</div>
+</div>
+{%endblock%}
