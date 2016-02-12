@@ -136,8 +136,8 @@ def login_page(message=None):
         cur,conn=connection()
         cur.execute('CREATE TABLE IF NOT EXISTS users (user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT, name TEXT, contact TEXT, email TEXT, password TEXT, settings TEXT, verified TEXT)')
         conn.commit()
-        user_name=request.form['user_name']
-        cur.execute('SELECT COUNT (*) FROM users WHERE user_name=?',(user_name,))
+        email=request.form['email']
+        cur.execute('SELECT COUNT (*) FROM users WHERE email=?',(email,))
         count=cur.fetchone()[0]
         if count==0:
             error="Invalid credentials. Please try again."
@@ -146,7 +146,7 @@ def login_page(message=None):
             return render_template('login_new.html',error=error)
         else:
             password=request.form['password']
-            cur.execute('SELECT * FROM users WHERE user_name=?',(user_name,))
+            cur.execute('SELECT * FROM users WHERE email=?',(email,))
             data=cur.fetchall()[0]
             if sha256_crypt.verify(password,data[5]):
                 if data[7]=='N':
@@ -156,11 +156,11 @@ def login_page(message=None):
                 else:
                     session['verified']=True
                     session['logged_in']=True
-                    session['user_name']=user_name
+                    session['user_name']=data[1]
                     session['user_id']=data[0]
                     session['name']=data[2]
                     session['settings']=data[6]
-                    session['email']=data[4]
+                    session['email']=email
                     session['contact']=data[3]
                     return redirect(url_for('board',num=1))
                 cur.close()
