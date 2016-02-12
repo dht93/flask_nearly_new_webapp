@@ -1,0 +1,16 @@
+{%extends 'cover_header.html'%}
+
+{%block home_active%}
+class="active"
+{%endblock%}
+
+{%block inner_cover%}
+<div class="inner cover">
+<h1 class="cover-heading">Nearly-New</h1>
+<p class="lead">Nearly-New is an online portal for students of NIT Hamirpur to sell/seek stuff to/from other students.</p>
+<p class="lead">
+  <a href="{{url_for('register_page')}}" class="btn btn-lg btn-primary">Register</a>
+  <a href="{{url_for('login_page')}}" class="btn btn-lg btn-primary">Login</a>
+</p>
+</div>
+{%endblock%}

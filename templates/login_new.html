@@ -1,0 +1,35 @@
+{%extends 'cover_header.html'%}
+
+{%block inner_cover%}
+    <div class="inner cover">
+    <form action="" class="form-inline" method="post">
+      <div class="row">
+      <input autofocus="autofocus" required type="text" class="form-control input-lg" placeholder = "username" name="user_name" value="{{request.form.user_name}}">
+    </div>
+    <div class="row" style="padding-top:5px;">
+      <input required id="pass" type="password" class="form-control input-lg" placeholder = "password" name="password" value="{{request.form.password}}">
+    </div>
+    <div class="row" style="padding-top:30px;">
+      <input class="btn btn-lg btn-primary" type="submit" value="Login">
+    </div>
+    </form>
+    <div class="row" style="padding-top:20px;">
+        <a href="{{url_for('index')}}" class="btn btn-primary btn-md" role="button">Home</a>
+        <a href="{{url_for('forgot_password')}}" class="btn btn-primary btn-md" role="button">Forgot Password</a>
+    </div>
+</div>
+
+{%endblock%}
+
+{%block error%}
+
+{%if error%}
+<div class="row" align="center" style="padding-top:5px;">
+<div class="alert alert-danger" role="alert">
+  <!--<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>-->
+  <span class="sr-only">Error:</span>
+  {{error}}
+</div>
+</div>
+{%endif%}
+{%endblock%}

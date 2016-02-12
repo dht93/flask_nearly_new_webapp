@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Nearly-New</title>
+    <link rel="stylesheet" href="{{url_for('static',filename="css/bootstrap.min.css")}}" type="text/css">
+    <link href="{{url_for('static',filename='css/cover.css')}}" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <div class="site-wrapper">
+
+      <div class="site-wrapper-inner">
+
+        <div class="cover-container">
+
+          <div class="masthead clearfix">
+            <div class="inner">
+              <h3 class="masthead-brand">Nearly-New</h3>
+              <nav>
+                <ul class="nav masthead-nav">
+                  <li {%block home_active%}{%endblock%}><a href="{{url_for('index')}}">Home</a></li>
+                  <li {%block features_active%}{%endblock%}><a href="{{url_for('features')}}">Features</a></li>
+                  <li {%block contact_active%}{%endblock%}><a href="{{url_for('contact')}}">Contact</a></li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+
+
+      {%block inner_cover%}
+      {%endblock%}
+
+          <div class="mastfoot">
+              {%block error%}
+              {%endblock%}
+            <div class="inner">
+              <p>Built with &#10084; by <a target="_blank" href="https://github.com/dht93" style="text-decoration:none;color:white;"> Dhruv Thakur</a></p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="{{url_for('static',filename='js/bootstrap.min.js')}}"></script>
+  </body>
+</html>

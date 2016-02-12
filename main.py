@@ -73,12 +73,19 @@ def index():
     notif_count=0
     if session.get('logged_in',-1)==True:
         notif_count=get_notifs()
-    return render_template('home.html',notif_count=notif_count)
+    return render_template('home_new.html',notif_count=notif_count)
 
 @app.route('/unverified/')
 def unverified():
-    return render_template('unverified.html')
+    return render_template('unverified_new.html')
 
+@app.route('/features/')
+def features():
+	return render_template('features.html')
+
+@app.route('/contact/')
+def contact():
+	return render_template('contact.html')
 
 @app.route('/register/',methods=['GET','POST'])
 def register_page():
@@ -109,18 +116,18 @@ def register_page():
 				cur.execute('INSERT INTO verification_codes VALUES (?,?)',(str(verf),user_id))
 				conn.commit()
 				html_body2=render_template('emails/register.html',name=name,verification_url=verification_url)
-				send_email('Welcome to Nearly-New!',[email], None, html_body2)
+				#send_email('Welcome to Nearly-New!',[email], None, html_body2)
 				cur.close()
 				conn.close()
 				return redirect(url_for('unverified'))
 			else:
 				error="This email has already been used. Login using your credentials or click on forgot password"
-				return render_template('register.html',error=error)
+				return render_template('register_new.html',error=error)
 		else:
 			error="This user name has already been taken. Please choose another."
-			return render_template('register.html',error=error)
+			return render_template('register_new.html',error=error)
 	else:
-		return render_template('register.html')
+		return render_template('register_new.html')
 
 @app.route('/login/',methods=['GET','POST'])
 @app.route('/login/<message>/',methods=['GET','POST'])
@@ -136,7 +143,7 @@ def login_page(message=None):
             error="Invalid credentials. Please try again."
             cur.close()
             conn.close()
-            return render_template('login.html',error=error)
+            return render_template('login_new.html',error=error)
         else:
             password=request.form['password']
             cur.execute('SELECT * FROM users WHERE user_name=?',(user_name,))
@@ -162,10 +169,10 @@ def login_page(message=None):
                 cur.close()
                 conn.close()
                 error="Invalid credentials. Please try again."
-                return render_template('login.html',error=error)
+                return render_template('login_new.html',error=error)
     else:
         print message
-        return render_template('login.html',message=message)
+        return render_template('login_new.html',message=message)
 
 @app.route('/verify')
 def verify_user():
@@ -185,13 +192,13 @@ def verify_user():
 				conn.commit()
 				cur.execute('SELECT name, user_name, email FROM users WHERE user_id=?',(u_id,))
 				data=cur.fetchone()
-				html_body=render_template('emails/new_user.html',name=data[0],user_name=data[1],email=data[2])
-				send_email('New sign-up',['dhruvt93@gmail.com'], None, html_body)
-				print html_body
+				#html_body=render_template('emails/new_user.html',name=data[0],user_name=data[1],email=data[2])
+				#send_email('New sign-up',['dhruvt93@gmail.com'], None, html_body)
+				#print html_body
 				message='new-verified'
 			else:
 				message='already-verified'
-			return redirect(url_for('login_page',message=message))
+			return render_template('verified_resp.html',message=message)
 		else:
 			return render_template('404.html')
 	except:
@@ -722,6 +729,24 @@ def admin_remove_user(user_id):
     cur.close()
     conn.close()
     return redirect(url_for('admin_users'))
+
+
+@app.route('/feedback/',methods=['GET','POST'])
+@login_required
+def feedback():
+	cur,conn=connection()
+	cur.execute('CREATE TABLE IF NOT EXISTS feedback (f_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, user_id INTEGER, name TEXT, body TEXT)')
+	conn.commit()
+	if request.method=='POST':
+		body=request.form['body']
+		cur.execute('INSERT INTO feedback (user_id, name, body) VALUES (?,?,?)',(session['user_id'], session['name'], body))
+		conn.commit()
+		return redirect(url_for('feedback'))
+	cur.execute('SELECT * FROM feedback ORDER BY f_id DESC')
+	data=cur.fetchall()
+	notif_count=get_notifs()
+	return render_template('feedback.html', data= data, notif_count=notif_count)
+
 
 
 if __name__=="__main__":
