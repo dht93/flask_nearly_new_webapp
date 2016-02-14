@@ -555,9 +555,9 @@ def req(tr_id,type_r,recipient,recipient_name,content):
 	cur.close()
 	conn.close()
 	html_body=render_template('emails/request.html',recipient_name=recipient_name,requestor_name=session['name'],content=content)
-	print email
-	print html_body
-	#send_email('Request on nearly-new',[email],None,html_body)
+	#print email
+	#print html_body
+	send_email('Request on nearly-new',[email],None,html_body)
 	return redirect(url_for('post',tr_id=tr_id))
 
 @app.route('/remove_post/<int:tr_id>/')
