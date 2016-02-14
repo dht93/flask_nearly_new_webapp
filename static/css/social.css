@@ -139,25 +139,7 @@
   }
 }
 /* Extra stuff just to make the demo pretty. */
-body {
-  padding: 35px 0;
-  color: #fff;
-  font-family: 'Lora', serif;
-  font-size: 14px;
-  text-align: center;
-  line-height: 24px;
-  background: #262730 url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/93/noise-bg.png) repeat 0 0;
-}
 
-h1 {
-  margin-bottom: 45px;
-  font-size: 55px;
-  line-height: 1.2;
-}
-
-footer {
-  margin: 75px 0 35px;
-}
 
 a {
   color: #4183c4;

@@ -1,15 +1,29 @@
 {%extends 'cover_header.html'%}
 
+{%block head%}
+<link rel="stylesheet" href="{{url_for('static',filename="css/social.css")}}" type="text/css">
+{%endblock%}
+
 {%block contact_active%}
 class="active"
 {%endblock%}
 
 {%block inner_cover%}
+
 <div class="inner cover" align="left">
-    <p class="lead">Hi, I'm Dhruv.</p>
-    <p class="lead">Contact details:</p>
-    <p class="lead">Phone: 9882769605</p>
+    <p class="lead">Hi, I'm Dhruv</p>
+    <p class="lead">I like building stuff, preferably by hitting keys on a keyboard.</p>
+    <p class="lead">Phone: +919882769605</p>
     <p class="lead">Email: dhruvt93@gmail.com</p>
+    <p class="lead">You can find me here:</p>
+    <ul class="social-networks spin-icon">
+      <li><a target="_blank" href="https://github.com/dht93" class="icon-github">GitHub</a></li>
+  <li><a target="_blank" href="https://www.linkedin.com/in/dhruvthakur" class="icon-linkedin">LinkedIn</a></li>
+  <li><a target="_blank" href="https://twitter.com/dht93" class="icon-twitter">Twitter</a></li>
+  <li><a target="_blank" href="https://www.instagram.com/dhr.uv/" class="icon-instagram">Instagram</a></li>
+  <li><a target="_blank" href="https://www.facebook.com/metalplusclassicrock" class="icon-facebook">Facebook</a></li>
+</ul>
+
 </div>
 
 {%endblock%}

@@ -647,12 +647,6 @@ def logout():
     #flash('You are now logged out')
     return redirect(url_for('index'))
 
-@app.route('/about/')
-@login_required
-def about():
-    notif_count=get_notifs()
-    return render_template('about.html',notif_count=notif_count)
-
 @app.errorhandler(404)
 def page_not_found(e):
 
