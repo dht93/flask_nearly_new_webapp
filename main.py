@@ -209,50 +209,54 @@ def verify_user():
 @app.route('/board/<int:num>/',methods=['GET','POST'])
 @login_required
 def board(num):
-    if request.method=='POST':
-        cur,conn=connection()
-        cur.execute('CREATE TABLE IF NOT EXISTS help_out (help_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,tr_id NUMBER, helper_id NUMBER, helper_name TEXT, helped_id NUMBER, content TEXT, data_sent TEXT, ack TEXT)')
-        conn.commit()
-        resp=request.form['num_s']
-        print resp
-        number=request.form.get('number',-1)
-        if not number==-1:
-            cur.execute('UPDATE USERS SET contact=? WHERE user_id=?',('number',session['user_id']))
-            conn.commit()
-            session['contact']=number
-        els=resp.split(',')
-        if els[0]=='n':
-            data_sent=session['email']
-        else:
-            data_sent=session['email']+','+session['contact']
-
-        tr_id=els[1]
-        helped_id=els[2]
-        content=els[4]
-        ack='NY'
-        cur.execute('INSERT INTO help_out (tr_id, helper_id, helper_name,helped_id, content, data_sent, ack) VALUES(?,?,?,?,?,?,?)',(tr_id, session['user_id'], session['user_name'],helped_id, content, data_sent, ack))
-        conn.commit()
-        notif_count=get_notifs()
-        return redirect(url_for('board',num=num))
-    else:
-        cur,conn=connection()
-        cur.execute('CREATE TABLE IF NOT EXISTS posts (tr_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT,user_id TEXT,content TEXT,selling_p TEXT,used_for TEXT, add_info TEXT, closed TEXT)')
-        conn.commit()
-        cur.execute('SELECT COUNT (*) FROM posts')
-        count=cur.fetchone()[0]
-        if count<=10:
-            no_of_pages=1
-        else:
-            no_of_pages=(count/10)+1
-        current=num
-        start=(num-1)*10
-        end=start+10
-        cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id,closed FROM posts,users WHERE posts.user_id=users.user_id ORDER BY tr_id DESC LIMIT ?,?',(start,end))
-        data=cur.fetchall()
-        cur.close()
-        conn.close()
-        notif_count=get_notifs()
-        return render_template('board.html',data=data,no_of_pages=no_of_pages, current=current, posts_on_page=len(data),notif_count=notif_count)
+	if request.method=='POST':
+		cur,conn=connection()
+		cur.execute('CREATE TABLE IF NOT EXISTS help_out (help_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,tr_id NUMBER, helper_id NUMBER, helper_name TEXT, helped_id NUMBER, content TEXT, data_sent TEXT, ack TEXT)')
+		conn.commit()
+		resp=request.form['num_s']
+		#print resp
+		number=request.form.get('number',-1)
+		if not number==-1:
+			cur.execute('UPDATE USERS SET contact=? WHERE user_id=?',('number',session['user_id']))
+			conn.commit()
+			session['contact']=number
+		els=resp.split(',')
+		if els[0]=='n':
+			data_sent=session['email']
+		else:
+			data_sent=session['email']+','+session['contact']
+		tr_id=els[1]
+		helped_id=els[2]
+		content=els[4]
+		ack='NY'
+		cur.execute('INSERT INTO help_out (tr_id, helper_id, helper_name,helped_id, content, data_sent, ack) VALUES(?,?,?,?,?,?,?)',(tr_id, session['user_id'], session['user_name'],helped_id, content, data_sent, ack))
+		conn.commit()
+		cur.execute('SELECT name, email FROM users WHERE user_id=?',(helped_id,))
+		data=cur.fetchone()
+		email=data[1]
+		html_body=render_template('emails/help_out.html', helped_name=data[0],helper_name=session['name'],content=content)
+		send_email('Somebody offered you to help you!',[email],None,html_body)
+		notif_count=get_notifs()
+		return redirect(url_for('board',num=num))
+	else:
+		cur,conn=connection()
+		cur.execute('CREATE TABLE IF NOT EXISTS posts (tr_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, type TEXT,user_id TEXT,content TEXT,selling_p TEXT,used_for TEXT, add_info TEXT, closed TEXT)')
+		conn.commit()
+		cur.execute('SELECT COUNT (*) FROM posts')
+		count=cur.fetchone()[0]
+		if count<=10:
+			no_of_pages=1
+		else:
+			no_of_pages=(count/10)+1
+		current=num
+		start=(num-1)*10
+		end=start+10
+		cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id,closed FROM posts,users WHERE posts.user_id=users.user_id ORDER BY tr_id DESC LIMIT ?,?',(start,end))
+		data=cur.fetchall()
+		cur.close()
+		conn.close()
+		notif_count=get_notifs()
+		return render_template('board.html',data=data,no_of_pages=no_of_pages, current=current, posts_on_page=len(data),notif_count=notif_count)
 
 @app.route('/search',methods=['POST','GET'])
 @login_required
@@ -541,14 +545,20 @@ def post(tr_id):
 @app.route('/request/<int:tr_id>/<type_r>/<int:recipient>/<recipient_name>/<content>/')
 @login_required
 def req(tr_id,type_r,recipient,recipient_name,content):
-    cur,conn=connection()
-    cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type_r TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT, content TEXT)')
-    conn.commit()
-    cur.execute('INSERT INTO requests (tr_id,type_r,requestor, requestor_name,recipient,recipient_name,response,ack, content) VALUES (?,?,?,?,?,?,?,?,?)',(tr_id,type_r,session['user_id'],session['name'],recipient,recipient_name,'NY','NA',content))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect(url_for('post',tr_id=tr_id))
+	cur,conn=connection()
+	cur.execute('CREATE TABLE IF NOT EXISTS requests (request_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, tr_id NUMBER, type_r TEXT, requestor NUMBER, requestor_name TEXT, recipient NUMBER, recipient_name TEXT, response TEXT, ack TEXT, content TEXT)')
+	conn.commit()
+	cur.execute('INSERT INTO requests (tr_id,type_r,requestor, requestor_name,recipient,recipient_name,response,ack, content) VALUES (?,?,?,?,?,?,?,?,?)',(tr_id,type_r,session['user_id'],session['name'],recipient,recipient_name,'NY','NA',content))
+	conn.commit()
+	cur.execute('SELECT email FROM users WHERE user_id=?',(recipient,))
+	email=cur.fetchone()[0]
+	cur.close()
+	conn.close()
+	html_body=render_template('emails/request.html',recipient_name=recipient_name,requestor_name=session['name'],content=content)
+	print email
+	print html_body
+	#send_email('Request on nearly-new',[email],None,html_body)
+	return redirect(url_for('post',tr_id=tr_id))
 
 @app.route('/remove_post/<int:tr_id>/')
 @login_required
@@ -604,12 +614,17 @@ def notifications():
 @app.route('/request/accept/<int:request_id>/')
 @login_required
 def accept_request(request_id):
-    cur,conn=connection()
-    cur.execute('UPDATE requests SET response=?,ack=? WHERE request_id=?',('Y','NS',request_id))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect(url_for('notifications'))
+	cur,conn=connection()
+	cur.execute('UPDATE requests SET response=?,ack=? WHERE request_id=?',('Y','NS',request_id))
+	conn.commit()
+	cur.execute('SELECT requestor_name, recipient_name, email, content FROM requests, users WHERE request_id=? AND users.user_id=requestor',(request_id,))
+	data=cur.fetchone()
+	email=data[2]
+	html_body=render_template('emails/request_accepted.html',requestor_name=data[0], recipient_name=data[1],content=data[3])
+	send_email('Requested accepted',[email],None,html_body)
+	cur.close()
+	conn.close()
+	return redirect(url_for('notifications'))
 
 @app.route('/request/reject/<int:request_id>/')
 @login_required
@@ -634,12 +649,13 @@ def ack_notif(request_id):
 @app.route('/ack_help/<int:help_id>/')
 @login_required
 def ack_help(help_id):
-    cur,conn=connection()
-    cur.execute('UPDATE help_out SET ack=? WHERE help_id=?',('S',help_id))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect(url_for('notifications'))
+	cur,conn=connection()
+	cur.execute('UPDATE help_out SET ack=? WHERE help_id=?',('S',help_id))
+	conn.commit()
+	cur.close()
+	conn.close()
+	return redirect(url_for('notifications'))
+
 @app.route('/logout/')
 @login_required
 def logout():
