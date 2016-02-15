@@ -261,24 +261,31 @@ def board(num):
 @app.route('/search',methods=['POST','GET'])
 @login_required
 def search():
-    cur,conn=connection()
-    cur.execute('CREATE TABLE IF NOT EXISTS search (keyword TEXT, tr_id INTEGER)')
-    conn.commit()
-    query=request.form['query']
-    query=query.replace(',',' ').replace('.',' ').replace('-',' ').replace('(',' ').replace(')',' ').lower()
-    words=query.split(' ')
-    keywords=[]
-    for word in words:
-        if len(word)>3:
-            keywords.append(word)
-    data=[]
-    for keyword in keywords:
-        cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id,closed FROM posts,users WHERE posts.user_id=users.user_id AND content LIKE ? AND closed=? ORDER BY tr_id DESC',('%'+keyword+'%','n'))
-        data.extend(cur.fetchall())
-    cur.close()
-    conn.close()
-    notif_count=get_notifs()
-    return render_template('search.html',data=data,notif_count=notif_count)
+	cur,conn=connection()
+	cur.execute('CREATE TABLE IF NOT EXISTS search (keyword TEXT, tr_id INTEGER)')
+	conn.commit()
+	query=request.form['query']
+	query=query.replace(',',' ').replace('.',' ').replace('-',' ').replace('(',' ').replace(')',' ').lower()
+	words=query.split(' ')
+	keywords=[]
+	for word in words:
+		if len(word)>3:
+			keywords.append(word)
+	data=[]
+	tr_ids=[]
+	for keyword in keywords:
+		cur.execute('SELECT tr_id FROM posts WHERE content LIKE ? AND closed=?',('%'+keyword+'%','n'))
+		t=[el[0] for el in cur.fetchall()]
+		tr_ids.extend(t)
+	tr_ids=list(set(tr_ids))
+	tr_ids.sort(reverse=True)
+	for tr_id in tr_ids:
+		cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id,closed FROM posts,users WHERE posts.user_id=users.user_id AND tr_id=?',(tr_id,))
+		data.extend(cur.fetchall())
+	cur.close()
+	conn.close()
+	notif_count=get_notifs()
+	return render_template('search.html',data=data,notif_count=notif_count)
 
 
 
