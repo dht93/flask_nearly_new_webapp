@@ -235,7 +235,7 @@ def board(num):
 		data=cur.fetchone()
 		email=data[1]
 		html_body=render_template('emails/help_out.html', helped_name=data[0],helper_name=session['name'],content=content)
-		send_email('Somebody offered you to help you!',[email],None,html_body)
+		send_email('You\'ve been offered help!',[email],None,html_body)
 		notif_count=get_notifs()
 		return redirect(url_for('board',num=num))
 	else:
@@ -564,7 +564,7 @@ def req(tr_id,type_r,recipient,recipient_name,content):
 	html_body=render_template('emails/request.html',recipient_name=recipient_name,requestor_name=session['name'],content=content)
 	#print email
 	#print html_body
-	send_email('Request on nearly-new',[email],None,html_body)
+	send_email('You\'ve got a request!',[email],None,html_body)
 	return redirect(url_for('post',tr_id=tr_id))
 
 @app.route('/remove_post/<int:tr_id>/')
@@ -628,7 +628,7 @@ def accept_request(request_id):
 	data=cur.fetchone()
 	email=data[2]
 	html_body=render_template('emails/request_accepted.html',requestor_name=data[0], recipient_name=data[1],content=data[3])
-	send_email('Requested accepted',[email],None,html_body)
+	send_email('Requested accepted!',[email],None,html_body)
 	cur.close()
 	conn.close()
 	return redirect(url_for('notifications'))
