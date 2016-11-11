@@ -7,7 +7,7 @@ import uuid
 import urllib
 
 app=Flask(__name__)
-
+app.secret_key = 'XXXXXXXXXXXXXXXXXXXXX'
 app.config.update(
 	DEBUG=True,
 	#EMAIL SETTINGS
@@ -33,7 +33,7 @@ def login_required(f):
     return wrap
 
 def connection():
-    conn=sqlite3.connect('users.sqlite')
+    conn=sqlite3.connect('/home/dht93/db/users.sqlite')
     cur=conn.cursor()
     return (cur,conn)
 
@@ -67,6 +67,16 @@ def get_notifs():
     conn.close()
     notif_count=rec+req+helped_new
     return notif_count
+
+@app.route('/email/')
+def email():
+    email="dhruvt93@gmail.com"
+    rst=str(uuid.uuid5(uuid.uuid4(),str(email)))
+    user_id=34
+    reset_url="http://127.0.0.1:5000/reset_pass?"+urllib.urlencode({'u_id':user_id,'code':rst})
+    html_body=render_template('emails/reset_pass.html',name='Daddy',reset_url=reset_url)
+    send_email('Reset Password!',['dhruvt93@gmail.com'], None, html_body)
+    return "Done!"
 
 @app.route('/')
 def index():
@@ -110,7 +120,7 @@ def register_page():
 				user_id=cur.fetchone()[0]
 				session['verified']=False
 				verf=uuid.uuid5(uuid.uuid4(), str(user_id))
-				verification_url="http://127.0.0.1:5000/verify?"+urllib.urlencode({'u_id':user_id,'verf':verf})
+				verification_url="http://dht93.pythonanywhere.com/verify?"+urllib.urlencode({'u_id':user_id,'verf':verf})
 				cur.execute('CREATE TABLE IF NOT EXISTS verification_codes (verf TEXT, user_id INTEGER)')
 				conn.commit()
 				cur.execute('INSERT INTO verification_codes VALUES (?,?)',(str(verf),user_id))
@@ -235,7 +245,7 @@ def board(num):
 		data=cur.fetchone()
 		email=data[1]
 		html_body=render_template('emails/help_out.html', helped_name=data[0],helper_name=session['name'],content=content)
-		send_email('Somebody offered you to help you!',[email],None,html_body)
+		send_email('You\'ve been offered help!',[email],None,html_body)
 		notif_count=get_notifs()
 		return redirect(url_for('board',num=num))
 	else:
@@ -261,24 +271,31 @@ def board(num):
 @app.route('/search',methods=['POST','GET'])
 @login_required
 def search():
-    cur,conn=connection()
-    cur.execute('CREATE TABLE IF NOT EXISTS search (keyword TEXT, tr_id INTEGER)')
-    conn.commit()
-    query=request.form['query']
-    query=query.replace(',',' ').replace('.',' ').replace('-',' ').replace('(',' ').replace(')',' ').lower()
-    words=query.split(' ')
-    keywords=[]
-    for word in words:
-        if len(word)>3:
-            keywords.append(word)
-    data=[]
-    for keyword in keywords:
-        cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id,closed FROM posts,users WHERE posts.user_id=users.user_id AND content LIKE ? AND closed=? ORDER BY tr_id DESC',('%'+keyword+'%','n'))
-        data.extend(cur.fetchall())
-    cur.close()
-    conn.close()
-    notif_count=get_notifs()
-    return render_template('search.html',data=data,notif_count=notif_count)
+	cur,conn=connection()
+	cur.execute('CREATE TABLE IF NOT EXISTS search (keyword TEXT, tr_id INTEGER)')
+	conn.commit()
+	query=request.form['query']
+	query=query.replace(',',' ').replace('.',' ').replace('-',' ').replace('(',' ').replace(')',' ').lower()
+	words=query.split(' ')
+	keywords=[]
+	for word in words:
+		if len(word)>3:
+			keywords.append(word)
+	data=[]
+	tr_ids=[]
+	for keyword in keywords:
+		cur.execute('SELECT tr_id FROM posts WHERE content LIKE ? AND closed=?',('%'+keyword+'%','n'))
+		t=[el[0] for el in cur.fetchall()]
+		tr_ids.extend(t)
+	tr_ids=list(set(tr_ids))
+	tr_ids.sort(reverse=True)
+	for tr_id in tr_ids:
+		cur.execute('SELECT tr_id, type, users.name, content, selling_p, used_for, add_info, users.user_id,closed FROM posts,users WHERE posts.user_id=users.user_id AND tr_id=?',(tr_id,))
+		data.extend(cur.fetchall())
+	cur.close()
+	conn.close()
+	notif_count=get_notifs()
+	return render_template('search.html',data=data,notif_count=notif_count)
 
 
 
@@ -438,7 +455,7 @@ def forgot_password():
 			user_id=resp[0]
 			name=resp[1]
 			rst=str(uuid.uuid5(uuid.uuid4(),str(email)))
-			reset_url="http://127.0.0.1:5000/reset_pass?"+urllib.urlencode({'u_id':user_id,'code':rst})
+			reset_url="http://dht93.pythonanywhere.com/reset_pass?"+urllib.urlencode({'u_id':user_id,'code':rst})
 			html_body=render_template('emails/reset_pass.html',name=name,reset_url=reset_url)
 			send_email('Reset Password',[email],None,html_body)
 			cur.execute('SELECT COUNT(*) FROM reset_codes WHERE user_id=?',(user_id,))
@@ -555,9 +572,9 @@ def req(tr_id,type_r,recipient,recipient_name,content):
 	cur.close()
 	conn.close()
 	html_body=render_template('emails/request.html',recipient_name=recipient_name,requestor_name=session['name'],content=content)
-	print email
-	print html_body
-	#send_email('Request on nearly-new',[email],None,html_body)
+	#print email
+	#print html_body
+	send_email('You\'ve got a request!',[email],None,html_body)
 	return redirect(url_for('post',tr_id=tr_id))
 
 @app.route('/remove_post/<int:tr_id>/')
@@ -621,7 +638,7 @@ def accept_request(request_id):
 	data=cur.fetchone()
 	email=data[2]
 	html_body=render_template('emails/request_accepted.html',requestor_name=data[0], recipient_name=data[1],content=data[3])
-	send_email('Requested accepted',[email],None,html_body)
+	send_email('Requested accepted!',[email],None,html_body)
 	cur.close()
 	conn.close()
 	return redirect(url_for('notifications'))
@@ -680,7 +697,7 @@ def admin():
         name=request.form['name']
         password=request.form['password']
         sequence=request.form['sequence']
-        if name=='XXXXXXX' and password=='XXXXXXX' and sequence=='XXXXXXX':
+        if name=='93admin93' and password=='93adminbitches93' and sequence=='08989890':
             session['admin']=True
             return redirect(url_for('board',num=1))
         else:
@@ -760,6 +777,5 @@ def feedback():
 
 
 if __name__=="__main__":
-    app.secret_key = 'super secret key'
     app.config['SESSION_TYPE'] = 'filesystem'
     app.run(debug=True,threaded=True)
